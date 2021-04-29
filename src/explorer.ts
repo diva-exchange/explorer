@@ -37,10 +37,10 @@ export class Explorer {
     this.app.use(compression());
 
     // static content
-    this.app.use(express.static(path.join(__dirname, '/../app/static/')));
+    this.app.use(express.static(path.join(__dirname, '/../static/')));
 
     // view engine setup
-    this.app.set('views', path.join(__dirname, '/../app/view/'));
+    this.app.set('views', path.join(__dirname, '/../view/'));
     this.app.set('view engine', 'pug');
 
     this.app.use(express.json());
@@ -80,7 +80,7 @@ export class Explorer {
     }
   }
 
-  private static error(err: any, req: Request, res: Response, next: NextFunction) {
+  private static error(err: any, req: Request, res: Response) {
     // set locals, only providing error in development
     res.locals.status = err.status;
     res.locals.message = err.message;
