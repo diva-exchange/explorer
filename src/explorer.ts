@@ -21,7 +21,6 @@ import compression from "compression";
 import createError from "http-errors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import path from "path";
-import { Logger } from "./logger";
 
 export class Explorer {
   private app: Express;
