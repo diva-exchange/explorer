@@ -18,15 +18,23 @@
  */
 
 import compression from "compression";
+import { Config } from "./config";
 import createError from "http-errors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import path from "path";
+import http from "http";
+import WebSocket from "ws";
+import { Logger } from "./logger";
 
 export class Explorer {
-  private app: Express;
+  private readonly config: Config;
+  private readonly app: Express;
+  private readonly httpServer: http.Server;
+  private readonly webSocketServer: WebSocket.Server;
 
-  constructor() {
-    /** @type {Function} */
+  constructor(config: Config) {
+    this.config = config;
+
     this.app = express();
     // generic
     this.app.set("x-powered-by", false);
@@ -56,10 +64,49 @@ export class Explorer {
 
     // error handler
     this.app.use(Explorer.error);
+
+    // Web Server
+    this.httpServer = http.createServer(this.app);
+    this.httpServer.on("listening", () => {
+      Logger.info(`HttpServer listening on ${this.config.http_ip}:${this.config.http_port}`);
+    });
+    this.httpServer.on("close", () => {
+      Logger.info(`HttpServer closing on ${this.config.http_ip}:${this.config.http_port}`);
+    });
+
+    this.webSocketServer = new WebSocket.Server({
+      server: this.httpServer,
+      perMessageDeflate: this.config.per_message_deflate,
+    });
+    this.webSocketServer.on("connection", (ws: WebSocket) => {
+      //@FIXME logging
+      Logger.trace("new websocket connection");
+      ws.on("error", (error: Error) => {
+        Logger.trace(error);
+        ws.terminate();
+      });
+    });
+    this.webSocketServer.on("close", () => {
+      Logger.info("WebSocketServer closing");
+    });
   }
 
-  listen() {
-    this.app.listen(3920);
+  listen(): Explorer {
+    this.httpServer.listen(this.config.http_port, this.config.http_ip);
+    return this;
+  }
+
+  async shutdown(): Promise<void> {
+    if (this.webSocketServer) {
+      await new Promise((resolve) => {
+        this.webSocketServer.close(resolve);
+      });
+    }
+    if (this.httpServer) {
+      await new Promise((resolve) => {
+        this.httpServer.close(resolve);
+      });
+    }
   }
 
   private static routes(req: Request, res: Response, next: NextFunction) {
@@ -68,6 +115,10 @@ export class Explorer {
       case "":
       case "/ui/blocks":
         res.render("blocks");
+        break;
+      case "/blocks":
+        //@FIXME
+        res.json({ height: 123456789, filter: "abc", page: 1, pages: 10, html: "<p>hello world</p>" });
         break;
       default:
         next();

@@ -69,16 +69,8 @@ class Ui {
         const pagesize = u('select[name=pagesize]').first().value
         Ui._fetchBlocks(q, 1, pagesize)
         break
-      case '/ui/peers-domains-roles':
+      case '/ui/peers':
         Ui._fetchPeers()
-        Ui._fetchDomains()
-        Ui._fetchRoles()
-        break
-      case '/ui/accounts':
-        Ui._fetchAccounts()
-        break
-      case '/ui/assets':
-        Ui._fetchAssets()
         break
     }
   }
@@ -128,66 +120,6 @@ class Ui {
       })
       .then((response) => {
         u('table.peers tbody').html(response.html)
-        Ui._attachEvents()
-      })
-  }
-
-  /**
-   * @param q {string}
-   * @private
-   */
-  static _fetchDomains (q = '') {
-    fetch('/domains?q=' + q)
-      .then((response) => {
-        return response.json()
-      })
-      .then((response) => {
-        u('table.domains tbody').html(response.html)
-        Ui._attachEvents()
-      })
-  }
-
-  /**
-   * @param q {string}
-   * @private
-   */
-  static _fetchRoles (q = '') {
-    fetch('/roles?q=' + q)
-      .then((response) => {
-        return response.json()
-      })
-      .then((response) => {
-        u('table.roles tbody').html(response.html)
-        Ui._attachEvents()
-      })
-  }
-
-  /**
-   * @param q {string}
-   * @private
-   */
-  static _fetchAccounts (q = '') {
-    fetch('/accounts?q=' + q)
-      .then((response) => {
-        return response.json()
-      })
-      .then((response) => {
-        u('table.accounts tbody').html(response.html)
-        Ui._attachEvents()
-      })
-  }
-
-  /**
-   * @param q {string}
-   * @private
-   */
-  static _fetchAssets (q = '') {
-    fetch('/assets?q=' + q)
-      .then((response) => {
-        return response.json()
-      })
-      .then((response) => {
-        u('table.assets tbody').html(response.html)
         Ui._attachEvents()
       })
   }

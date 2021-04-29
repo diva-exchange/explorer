@@ -17,17 +17,20 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
-import { Explorer } from "./explorer";
-import { Config } from "./config";
+export type Configuration = {
+  http_ip?: string;
+  http_port?: number;
+  per_message_deflate?: boolean;
+};
 
-const explorer = new Explorer(new Config()).listen();
+export class Config {
+  public readonly http_ip: string;
+  public readonly http_port: number;
+  public readonly per_message_deflate: boolean;
 
-process.once("SIGINT", async () => {
-  await explorer.shutdown();
-  process.exit(0);
-});
-
-process.once("SIGTERM", async () => {
-  await explorer.shutdown();
-  process.exit(0);
-});
+  constructor(c: Configuration = {}) {
+    this.http_ip = c.http_ip || process.env.HTTP_IP || "127.0.0.1";
+    this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
+    this.per_message_deflate = c.per_message_deflate || true;
+  }
+}
