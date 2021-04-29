@@ -17,15 +17,14 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
-import { Explorer } from './explorer';
+import { Explorer } from "./explorer";
 
 new Explorer().listen();
 
-process.once('SIGINT', () => {
+process.once("SIGINT", () => {
   process.exit(0);
 });
 
-process.once('SIGTERM', () => {
+process.once("SIGTERM", () => {
   process.exit(0);
 });
-

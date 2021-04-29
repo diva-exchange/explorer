@@ -1,0 +1,18 @@
+doctype html
+html(class='error' lang='en')
+  head
+    title= title
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(type='text/css' rel='stylesheet' href='/css/explorer.min.css')
+    link(rel='icon' href='/media/diva-exchange-logo-32x32.png' sizes='32x32')
+    link(rel='icon' href='/media/diva-exchange-logo-192x192.png' sizes='192x192')
+    link(rel='apple-touch-icon' href='/media/diva-exchange-logo-180x180.png')
+  body
+    div(class='container')
+      h1
+        span(class='error-status')= status
+        span(class='error-message')= message
+
+    if error.stack
+      hr
+      pre= error.stack

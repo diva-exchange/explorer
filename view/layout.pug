@@ -1,0 +1,12 @@
+doctype html
+html(class='has-navbar-fixed-top has-navbar-fixed-bottom' lang='en')
+  include head.pug
+
+  body
+    include navigation.pug
+
+    section(class='section')
+      div(class='container px-2')
+        block content
+
+    include footer.pug

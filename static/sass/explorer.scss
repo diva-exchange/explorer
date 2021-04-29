@@ -1,0 +1,80 @@
+@charset "utf-8";
+
+@import "../../node_modules/bulma/bulma";
+
+html.error {
+  h1 {
+    font-size: 4rem
+  }
+  h1 span.error-status {
+    padding-right: 1rem
+  }
+}
+
+nav.navbar.top, .navbar-menu {
+  background-color: #0f4057;
+  min-height: 70px;
+
+  .navbar-item img {
+    max-height: none;
+    margin-right: 30px;
+  }
+
+  .navbar-item, .navbar-burger {
+    color: #ffffff;
+  }
+
+  .navbar-item.is-tab.is-active {
+    border-bottom-color: #dbf514;
+    color: #dbf514;
+  }
+
+  .navbar-item.is-tab:focus, .navbar-item.is-tab:hover {
+    border-bottom-color: #dbf514;
+    color: #dbf514;
+  }
+}
+
+section.section {
+  padding: 1rem 0 1.5rem;
+}
+
+article.article {
+  padding: 0 0.5rem;
+}
+
+#status-connection {
+  padding-left: 1rem;
+}
+
+table.blocks, table.accounts, table.assets {
+  table-layout: fixed;
+
+  tr td {
+    border: none;
+    border-top: 1px solid $border;
+  }
+
+  th.marker {
+    width: 2%;
+  }
+  td.marker {
+    cursor: pointer;
+    padding: 0.5em 0;
+  }
+
+  td.data {
+    border: none;
+    font-family: monospace;
+    font-size: 0.75rem;
+    padding-left: 3rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+}
+
+div.summary {
+  span {
+    padding-left: 0.5rem;
+  }
+}

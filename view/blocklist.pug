@@ -1,0 +1,12 @@
+each objBlock in blocks
+  tr(id='b' + Number(objBlock.id))
+    td(class='marker' data-id=objBlock.id)
+      span(data-id=objBlock.id class='icon')
+        i(class='icon-angle-right')
+    td(class='block')
+      a(data-id=objBlock.id)= Number(objBlock.id)
+    td(class='transactions')= objBlock.lengthTransactions
+    td(class='datetime')= objBlock.dateTimeFormatted
+  tr(id='bd' + Number(objBlock.id))
+    td(data-id=objBlock.id class='data is-hidden' colspan='4')
+

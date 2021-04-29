@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  form(class='my-3' id='search')
+    div(class='field')
+      div(class='control has-icons-left is-expanded')
+        input(class='input is-medium search' type='text' name='q' placeholder='Filter')
+        span(class='icon is-medium is-left')
+          i(class='icon-search')
+
+  article(class='blocks')
+
+  div(class='container my-3')
+    div(class='columns is-gapless is-mobile is-vcentered mx-0')
+      div(class='column')
+        h1(class='is-size-3') Blocks:&nbsp;
+          span(id='heightBlockchain' class='height')
+      div(class='column has-text-right')
+        div(class='field')
+          div(class='control is-expanded')
+            div(class='select')
+              select(name='pagesize')
+                option 500
+                option 250
+                option(selected) 100
+                option 50
+                option 20
+
+    table(class='blocks table is-fullwidth')
+      thead
+        tr
+          th(class='marker')
+          th Block
+          th Transactions
+          th Date/Time (UTC)
+      tbody
+
+  div(class='container is-size-3')
+    div(class='columns is-mobile paging mx-0')
+      div(class='column has-text-left')
+        a(class='first') &lt;&lt;
+      div(class='column has-text-left')
+        a(class='previous') &lt;
+      div(class='column has-text-right')
+        a(class='next') &gt;
+      div(class='column has-text-right')
+        a(class='last') &gt;&gt;
