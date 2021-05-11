@@ -231,7 +231,7 @@ class Ui {
       const d = u('td.data[data-id="' + idBlock + '"]')
       let response = {}
       if (d.text() === '') {
-        response = await (await fetch('/block?q=' + idBlock)).json()
+        response = await (await fetch(`/block?q=${idBlock}`)).json()
         if (response) {
           d.text(JSON.stringify(response, null, 2))
         }
@@ -241,26 +241,6 @@ class Ui {
         d.toggleClass('is-hidden')
         u('td.marker[data-id="' + idBlock + '"] span i').toggleClass('icon-angle-down')
         u('td.marker[data-id="' + idBlock + '"] span i').toggleClass('icon-angle-right')
-      }
-    })
-
-    // load account data
-    u('table.accounts td span, table.accounts td a').off('click').handle('click', async (e) => {
-      const idAccount = u(e.currentTarget).data('id')
-
-      const d = u('td.data[data-id="' + idAccount + '"]')
-      let response = {}
-      if (d.text() === '') {
-        response = await (await fetch('/account?q=' + idAccount)).json()
-        if (response) {
-          d.text(JSON.stringify(response, null, 2))
-        }
-      }
-
-      if (d.text() !== '') {
-        d.toggleClass('is-hidden')
-        u('td.marker[data-id="' + idAccount + '"] span i').toggleClass('icon-angle-down')
-        u('td.marker[data-id="' + idAccount + '"] span i').toggleClass('icon-angle-right')
       }
     })
   }

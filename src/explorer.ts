@@ -25,6 +25,7 @@ import path from "path";
 import http from "http";
 import WebSocket from "ws";
 import { Logger } from "./logger";
+import fetch from 'isomorphic-fetch';
 
 export class Explorer {
   private readonly config: Config;
@@ -52,7 +53,7 @@ export class Explorer {
     this.app.use(express.json());
 
     // routes
-    this.app.use(Explorer.routes);
+    this.app.use(async (req, res, next) => { await this.routes(req, res, next); });
 
     // catch unavailable favicon.ico
     this.app.get("/favicon.ico", (req, res) => res.sendStatus(204));
@@ -109,7 +110,7 @@ export class Explorer {
     }
   }
 
-  private static routes(req: Request, res: Response, next: NextFunction) {
+  private async routes(req: Request, res: Response, next: NextFunction) {
     const _p = req.path.replace(/\/+$/, "");
     switch (_p) {
       case "":
@@ -117,8 +118,36 @@ export class Explorer {
         res.render("blocks");
         break;
       case "/blocks":
-        //@FIXME
-        res.json({ height: 123456789, filter: "abc", page: 1, pages: 10, html: "<p>hello world</p>" });
+        const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 0);
+        const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 0);
+        const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
+
+        const response = await fetch(this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') +
+          (pagesize > 0 ? '?size=' + pagesize : ''));
+        const arrayBlocks = Array.from(await response.json()).map((b: any) => {
+          return {
+            id: b.height,
+            lengthTx: b.tx.length,
+            dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString()
+          }
+        });
+
+        this.app.render('blocklist', { blocks: arrayBlocks }, (error, html) => {
+          res.json({
+            blocks: arrayBlocks,
+            filter: filter,
+            page: page,
+            pages: page, //@FIXME
+            sizePage: pagesize,
+            height: arrayBlocks.length,
+            html: html
+          });
+        });
+        break;
+      case "/block":
+        const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 0);
+        const r = await fetch(this.config.url_api + `/blocks?gte=${id}&lte=${id}`);
+        res.json((await r.json())[0]);
         break;
       default:
         next();
