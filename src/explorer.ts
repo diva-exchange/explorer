@@ -25,7 +25,7 @@ import path from "path";
 import http from "http";
 import WebSocket from "ws";
 import { Logger } from "./logger";
-import fetch from 'isomorphic-fetch';
+import get from 'simple-get';
 
 export class Explorer {
   private readonly config: Config;
@@ -80,8 +80,6 @@ export class Explorer {
       perMessageDeflate: this.config.per_message_deflate,
     });
     this.webSocketServer.on("connection", (ws: WebSocket) => {
-      //@FIXME logging
-      Logger.trace("new websocket connection");
       ws.on("error", (error: Error) => {
         Logger.trace(error);
         ws.terminate();
@@ -118,39 +116,70 @@ export class Explorer {
         res.render("blocks");
         break;
       case "/blocks":
-        const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 0);
-        const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 0);
-        const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
-
-        const response = await fetch(this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') +
-          (pagesize > 0 ? '?size=' + pagesize : ''));
-        const arrayBlocks = Array.from(await response.json()).map((b: any) => {
-          return {
-            id: b.height,
-            lengthTx: b.tx.length,
-            dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString()
-          }
-        });
-
-        this.app.render('blocklist', { blocks: arrayBlocks }, (error, html) => {
-          res.json({
-            blocks: arrayBlocks,
-            filter: filter,
-            page: page,
-            pages: page, //@FIXME
-            sizePage: pagesize,
-            height: arrayBlocks.length,
-            html: html
-          });
-        });
+        await this.getBlocks(req, res);
         break;
       case "/block":
-        const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 0);
-        const r = await fetch(this.config.url_api + `/blocks?gte=${id}&lte=${id}`);
-        res.json((await r.json())[0]);
+        await this.getBlock(req, res);
         break;
       default:
         next();
+    }
+  }
+
+  private async getBlocks(req: Request, res: Response) {
+    const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 0);
+    const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 0);
+    const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
+    const url = this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') +
+      (pagesize > 0 ? '?size=' + pagesize : '');
+
+    try {
+      const r: Array<any> = await new Promise(((resolve, reject) => {
+        get.concat({url: url, timeout: 200}, (_error: Error, res: object, data: Buffer) => {
+          return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
+        });
+      }));
+      const arrayBlocks = r.map((b: any) => {
+        return {
+          id: b.height,
+          lengthTx: b.tx.length,
+          dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString()
+        }
+      });
+
+      this.app.render('blocklist', { blocks: arrayBlocks }, (error, html) => {
+        res.json({
+          blocks: arrayBlocks,
+          filter: filter,
+          page: page,
+          pages: page, //@FIXME
+          sizePage: pagesize,
+          height: arrayBlocks.length,
+          html: html
+        });
+      });
+    } catch (error) {
+      Logger.warn(`GET request failed: ${url}`);
+      Logger.trace(error);
+      res.json({});
+    }
+  }
+
+  private async getBlock(req: Request, res: Response) {
+    const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 0);
+    const url = this.config.url_api + `/blocks?gte=${id}&lte=${id}`;
+
+    try {
+      const r: Array<any> = await new Promise(((resolve, reject) => {
+        get.concat({url: url, timeout: 200}, (_error: Error, res: object, data: Buffer) => {
+          return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
+        });
+      }));
+      res.json(r[0]);
+    } catch (error) {
+      Logger.warn(`GET request failed: ${url}`);
+      Logger.trace(error);
+      res.json({});
     }
   }
 

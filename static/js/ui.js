@@ -44,9 +44,6 @@ class Ui {
    * @public
    */
   static make () {
-    // load non-critical css
-    // u('link[rel="preload"][as="style"]').attr('rel', 'stylesheet')
-
     // menu
     u('a.navbar-item').removeClass('is-active')
     u('a.navbar-item[href="' + window.location.pathname + '"]').length ?
