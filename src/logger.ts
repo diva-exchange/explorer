@@ -17,10 +17,10 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
-import pino from "pino";
+import pino from 'pino';
 
 export const Logger = pino(
-  process.env.NODE_ENV === "development"
-    ? { level: process.env.LOG_LEVEL || "trace" }
-    : { level: process.env.LOG_LEVEL || "warn" }
+  process.env.NODE_ENV === 'development'
+    ? { level: process.env.LOG_LEVEL || 'trace' }
+    : { level: process.env.LOG_LEVEL || 'warn' }
 );

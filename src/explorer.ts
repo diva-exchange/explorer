@@ -17,15 +17,16 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
-import compression from "compression";
-import { Config } from "./config";
-import createError from "http-errors";
-import express, { Express, NextFunction, Request, Response } from "express";
-import path from "path";
-import http from "http";
-import WebSocket from "ws";
-import { Logger } from "./logger";
+import compression from 'compression';
+import { Config } from './config';
+import createError from 'http-errors';
+import express, { Express, NextFunction, Request, Response } from 'express';
+import path from 'path';
+import http from 'http';
+import WebSocket from 'ws';
+import { Logger } from './logger';
 import get from 'simple-get';
+import pug from 'pug';
 
 export class Explorer {
   private readonly config: Config;
@@ -38,40 +39,40 @@ export class Explorer {
 
     this.app = express();
     // generic
-    this.app.set("x-powered-by", false);
+    this.app.set('x-powered-by', false);
 
     // compression
     this.app.use(compression());
 
     // static content
-    this.app.use(express.static(path.join(__dirname, "/../static/")));
-
-    // view engine setup
-    this.app.set("views", path.join(__dirname, "/../view/"));
-    this.app.set("view engine", "pug");
+    this.app.use(express.static(path.join(config.path_app, 'static')));
 
     this.app.use(express.json());
 
     // routes
-    this.app.use(async (req, res, next) => { await this.routes(req, res, next); });
+    this.app.use(async (req, res, next) => {
+      await this.routes(req, res, next);
+    });
 
     // catch unavailable favicon.ico
-    this.app.get("/favicon.ico", (req, res) => res.sendStatus(204));
+    this.app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
     // catch 404 and forward to error handler
-    this.app.use((req, res, next) => {
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(createError(404));
     });
 
     // error handler
-    this.app.use(Explorer.error);
+    this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+      this.error(err, req, res, next);
+    });
 
     // Web Server
     this.httpServer = http.createServer(this.app);
-    this.httpServer.on("listening", () => {
+    this.httpServer.on('listening', () => {
       Logger.info(`HttpServer listening on ${this.config.http_ip}:${this.config.http_port}`);
     });
-    this.httpServer.on("close", () => {
+    this.httpServer.on('close', () => {
       Logger.info(`HttpServer closing on ${this.config.http_ip}:${this.config.http_port}`);
     });
 
@@ -79,14 +80,14 @@ export class Explorer {
       server: this.httpServer,
       perMessageDeflate: this.config.per_message_deflate,
     });
-    this.webSocketServer.on("connection", (ws: WebSocket) => {
-      ws.on("error", (error: Error) => {
+    this.webSocketServer.on('connection', (ws: WebSocket) => {
+      ws.on('error', (error: Error) => {
         Logger.trace(error);
         ws.terminate();
       });
     });
-    this.webSocketServer.on("close", () => {
-      Logger.info("WebSocketServer closing");
+    this.webSocketServer.on('close', () => {
+      Logger.info('WebSocketServer closing');
     });
   }
 
@@ -109,16 +110,16 @@ export class Explorer {
   }
 
   private async routes(req: Request, res: Response, next: NextFunction) {
-    const _p = req.path.replace(/\/+$/, "");
+    const _p = req.path.replace(/\/+$/, '');
     switch (_p) {
-      case "":
-      case "/ui/blocks":
-        res.render("blocks");
+      case '':
+      case '/ui/blocks':
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug')));
         break;
-      case "/blocks":
+      case '/blocks':
         await this.getBlocks(req, res);
         break;
-      case "/block":
+      case '/block':
         await this.getBlock(req, res);
         break;
       default:
@@ -130,33 +131,34 @@ export class Explorer {
     const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 0);
     const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 0);
     const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
-    const url = this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') +
-      (pagesize > 0 ? '?size=' + pagesize : '');
+    const url =
+      this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') + (pagesize > 0 ? '?size=' + pagesize : '');
 
     try {
-      const r: Array<any> = await new Promise(((resolve, reject) => {
-        get.concat({url: url, timeout: 200}, (_error: Error, res: object, data: Buffer) => {
+      const r: Array<any> = await new Promise((resolve, reject) => {
+        get.concat({ url: url, timeout: 200 }, (_error: Error, res: object, data: Buffer) => {
           return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
         });
-      }));
+      });
       const arrayBlocks = r.map((b: any) => {
         return {
           id: b.height,
           lengthTx: b.tx.length,
-          dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString()
-        }
+          dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString(),
+        };
       });
 
-      this.app.render('blocklist', { blocks: arrayBlocks }, (error, html) => {
-        res.json({
-          blocks: arrayBlocks,
-          filter: filter,
-          page: page,
-          pages: page, //@FIXME
-          sizePage: pagesize,
-          height: arrayBlocks.length,
-          html: html
-        });
+      const html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
+        blocks: arrayBlocks,
+      });
+      res.json({
+        blocks: arrayBlocks,
+        filter: filter,
+        page: page,
+        pages: page, //@FIXME
+        sizePage: pagesize,
+        height: arrayBlocks.length,
+        html: html,
       });
     } catch (error) {
       Logger.warn(`GET request failed: ${url}`);
@@ -170,11 +172,11 @@ export class Explorer {
     const url = this.config.url_api + `/blocks?gte=${id}&lte=${id}`;
 
     try {
-      const r: Array<any> = await new Promise(((resolve, reject) => {
-        get.concat({url: url, timeout: 200}, (_error: Error, res: object, data: Buffer) => {
+      const r: Array<any> = await new Promise((resolve, reject) => {
+        get.concat({ url: url, timeout: 200 }, (_error: Error, res: object, data: Buffer) => {
           return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
         });
-      }));
+      });
       res.json(r[0]);
     } catch (error) {
       Logger.warn(`GET request failed: ${url}`);
@@ -183,22 +185,26 @@ export class Explorer {
     }
   }
 
-  private static error(err: any, req: Request, res: Response) {
-    // set locals, only providing error in development
-    res.locals.status = err.status;
-    res.locals.message = err.message;
-    res.locals.error = req.app.get("env") === "development" ? err : {};
-
+  private error(err: any, req: Request, res: Response, next: NextFunction) {
     res.status(err.status || 500);
 
     // render the error page
-    if (req.accepts("html")) {
-      res.render("error");
+    if (req.accepts('html')) {
+      res.end(
+        pug.renderFile(path.join(this.config.path_app, 'view/error.pug'), {
+          status: err.status || 500,
+          message: err.message,
+          error: process.env.NODE_ENV === 'development' ? err : {},
+        })
+      );
     } else {
       res.json({
-        message: res.locals.message,
-        error: res.locals.error,
+        status: err.status || 500,
+        message: err.message,
+        error: process.env.NODE_ENV === 'development' ? err : {},
       });
     }
+
+    next();
   }
 }

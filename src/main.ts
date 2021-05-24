@@ -17,17 +17,17 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
-import { Explorer } from "./explorer";
-import { Config } from "./config";
+import { Explorer } from './explorer';
+import { Config } from './config';
 
 const explorer = new Explorer(new Config()).listen();
 
-process.once("SIGINT", async () => {
+process.once('SIGINT', async () => {
   await explorer.shutdown();
   process.exit(0);
 });
 
-process.once("SIGTERM", async () => {
+process.once('SIGTERM', async () => {
   await explorer.shutdown();
   process.exit(0);
 });

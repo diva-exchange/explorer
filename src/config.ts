@@ -17,6 +17,8 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
+import path from 'path';
+
 export type Configuration = {
   http_ip?: string;
   http_port?: number;
@@ -25,13 +27,15 @@ export type Configuration = {
 };
 
 export class Config {
+  public readonly path_app: string;
   public readonly http_ip: string;
   public readonly http_port: number;
   public readonly per_message_deflate: boolean;
   public readonly url_api: string;
 
   constructor(c: Configuration = {}) {
-    this.http_ip = c.http_ip || process.env.HTTP_IP || "127.0.0.1";
+    this.path_app = path.join(Object.keys(process).includes('pkg') ? path.dirname(process.execPath) : __dirname, '/../');
+    this.http_ip = c.http_ip || process.env.HTTP_IP || '127.0.0.1';
     this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
     this.per_message_deflate = c.per_message_deflate || true;
     this.url_api = c.url_api || process.env.URL_API || '';
