@@ -39,8 +39,7 @@ RUN cd explorer \
   && npm i \
   && bin/build.sh
 
-FROM debian:stable-slim
-# FROM gcr.io/distroless/cc
+FROM gcr.io/distroless/cc
 COPY --from=build /explorer/static /static
 COPY --from=build /explorer/view /view
 COPY --from=build /explorer/build/explorer-linux-x64 /explorer
