@@ -38,6 +38,6 @@ export class Config {
     this.http_ip = c.http_ip || process.env.HTTP_IP || '127.0.0.1';
     this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
     this.per_message_deflate = c.per_message_deflate || true;
-    this.url_api = c.url_api || process.env.URL_API || '';
+    this.url_api = c.url_api || process.env.URL_API || 'http://localhost:17468';
   }
 }
