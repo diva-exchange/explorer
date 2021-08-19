@@ -238,19 +238,17 @@ export class Explorer {
 
   private async getState(req: Request, res: Response) {
     try {
-      const arrayStateKey = (await this.getFromApi(this.config.url_api + `/state/`))
-        .map((key: string, i: number) => {
+      res.json((await this.getFromApi(this.config.url_api + `/state/`))
+        .map((data: {key: string, value: string}) => {
           return { html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
-              id: i + 1,
-              key: key
+              k: data.key,
+              v: data.value
             })
           }
-        });
-
-      res.json(arrayStateKey);
+        })
+      );
     } catch (e) {
       res.json({});
-      return;
     }
   }
 

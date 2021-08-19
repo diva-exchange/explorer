@@ -71,8 +71,8 @@ class Ui {
         q = encodeURIComponent(u('input.search').first().value.toString().trim())
         Ui._fetchState(q)
         break
-      case '/ui/peers':
-        Ui._fetchPeers()
+      case '/ui/network':
+        Ui._fetchNetwork()
         break
     }
   }
@@ -115,13 +115,13 @@ class Ui {
    * @param q {string}
    * @private
    */
-  static _fetchPeers (q = '') {
+  static _fetchNetwork (q = '') {
     fetch('/peers?q=' + q)
       .then((response) => {
         return response.json()
       })
       .then((response) => {
-        u('table.peers tbody').html(response.html)
+        u('table.network tbody').html(response.html)
         Ui._attachEvents()
       })
   }

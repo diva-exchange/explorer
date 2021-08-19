@@ -1,9 +1,6 @@
-tr(id='k' + Number(id))
-  td(class='marker' data-id=id)
-    span(data-id=id class='icon')
-      i(class='icon-angle-right')
-  td(class='state')
-    a(data-id=id)= key
-tr(id='kd' + Number(id))
-  td(data-id=id class='data is-hidden' colspan='2')
+tr
+  td(class='state-key')
+    span= k
+  td(class='state-value')
+    span= v
 
