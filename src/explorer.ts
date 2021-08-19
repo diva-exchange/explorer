@@ -25,14 +25,17 @@ import path from 'path';
 import http from 'http';
 import WebSocket from 'ws';
 import { Logger } from './logger';
-import get from 'simple-get';
 import pug from 'pug';
+//@ts-ignore
+import get from 'simple-get';
 
 export class Explorer {
   private readonly config: Config;
   private readonly app: Express;
   private readonly httpServer: http.Server;
   private readonly webSocketServer: WebSocket.Server;
+  private webSocket: WebSocket = {} as WebSocket;
+  private height: number = 0;
 
   constructor(config: Config) {
     this.config = config;
@@ -78,6 +81,7 @@ export class Explorer {
 
     this.webSocketServer = new WebSocket.Server({
       server: this.httpServer,
+      clientTracking: true,
       perMessageDeflate: this.config.per_message_deflate,
     });
     this.webSocketServer.on('connection', (ws: WebSocket) => {
@@ -93,20 +97,71 @@ export class Explorer {
 
   listen(): Explorer {
     this.httpServer.listen(this.config.http_port, this.config.http_ip);
+    this.initFeed();
     return this;
   }
 
-  async shutdown(): Promise<void> {
+  async shutdown() {
     if (this.webSocketServer) {
       await new Promise((resolve) => {
-        this.webSocketServer.close(resolve);
+        this.webSocketServer.clients.forEach((ws) => {
+          ws.close(1000);
+        });
+        this.webSocketServer.close(() => {
+          resolve(true);
+        });
+        setTimeout(() => {
+          resolve(true);
+        }, 2000);
       });
     }
     if (this.httpServer) {
       await new Promise((resolve) => {
-        this.httpServer.close(resolve);
+        this.httpServer.close(() => {
+          resolve(true);
+        });
+        setTimeout(() => {
+          resolve(true);
+        }, 2000);
       });
     }
+  }
+
+  private initFeed() {
+    this.webSocket = new WebSocket(this.config.url_feed, {
+      followRedirects: false,
+      perMessageDeflate: true,
+    });
+
+    this.webSocket.on('error', () => {});
+
+    this.webSocket.on('close', () => {
+      this.webSocket = {} as WebSocket;
+      setTimeout(() => { this.initFeed(); }, 1000);
+    });
+
+    this.webSocket.on('message', (message: Buffer) => {
+      let block: any = {};
+      let html: string = '';
+      try {
+        block = JSON.parse(message.toString());
+        this.height = block.height > this.height ? block.height : this.height;
+        html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
+          blocks: [{
+            height: block.height,
+            lengthTx: block.tx.length,
+            dateTimeFormatted: new Date(block.tx[0].timestamp).toUTCString(),
+            }],
+        });
+      } catch (e) {
+        return;
+      }
+      if (html.length) {
+        this.webSocketServer.clients.forEach((ws) => {
+          ws.send(JSON.stringify({ heightChain: this.height, heightBlock: block.height, html: html }));
+        });
+      }
+    });
   }
 
   private async routes(req: Request, res: Response, next: NextFunction) {
@@ -134,37 +189,33 @@ export class Explorer {
     const url =
       this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') + (pagesize > 0 ? '?size=' + pagesize : '');
 
+    let arrayBlocks: Array<any> = [];
     try {
-      const r: Array<any> = await new Promise((resolve, reject) => {
-        get.concat({ url: url, timeout: 200 }, (_error: Error, res: object, data: Buffer) => {
-          return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
-        });
-      });
-      const arrayBlocks = r.map((b: any) => {
+      arrayBlocks = (await this.getFromApi(url)).map((b: any) => {
+        this.height = b.height > this.height ? b.height : this.height;
         return {
-          id: b.height,
+          height: b.height,
           lengthTx: b.tx.length,
           dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString(),
         };
       });
-
-      const html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
-        blocks: arrayBlocks,
-      });
-      res.json({
-        blocks: arrayBlocks,
-        filter: filter,
-        page: page,
-        pages: page, //@FIXME
-        sizePage: pagesize,
-        height: arrayBlocks.length,
-        html: html,
-      });
-    } catch (error) {
-      Logger.warn(`GET request failed: ${url}`);
-      Logger.trace(error);
+    } catch (e) {
       res.json({});
+      return;
     }
+
+    const html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
+      blocks: arrayBlocks,
+    });
+    res.json({
+      blocks: arrayBlocks,
+      filter: filter,
+      page: page,
+      pages: Math.ceil(this.height / pagesize),
+      sizePage: pagesize,
+      height: this.height,
+      html: html,
+    });
   }
 
   private async getBlock(req: Request, res: Response) {
@@ -172,17 +223,25 @@ export class Explorer {
     const url = this.config.url_api + `/blocks?gte=${id}&lte=${id}`;
 
     try {
-      const r: Array<any> = await new Promise((resolve, reject) => {
+      res.json((await this.getFromApi(url))[0]);
+    } catch (e) {
+      res.json({});
+      return;
+    }
+  }
+
+  private async getFromApi(url: string): Promise<any> {
+    try {
+      return await new Promise((resolve, reject) => {
         get.concat({ url: url, timeout: 200 }, (_error: Error, res: object, data: Buffer) => {
           return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
         });
       });
-      res.json(r[0]);
     } catch (error) {
       Logger.warn(`GET request failed: ${url}`);
       Logger.trace(error);
-      res.json({});
     }
+    return {};
   }
 
   private error(err: any, req: Request, res: Response, next: NextFunction) {

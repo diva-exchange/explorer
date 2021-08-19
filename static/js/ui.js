@@ -99,8 +99,8 @@ class Ui {
           u('.paging a.last').removeClass('is-hidden')
           u('.paging a.next').removeClass('is-hidden')
         }
-        u('#heightBlockchain').text(response.height)
-        u('#search input.search').first().value = response.filter
+        u('#heightBlockchain').text(response.height || 0)
+        u('#search input.search').first().value = response.filter || ''
         u('table.blocks tbody').html(response.html)
         Ui._attachEvents()
       })
@@ -152,29 +152,24 @@ class Ui {
           u('#status-update').addClass('is-hidden')
         }, 3000)
 
-        switch (obj.cmd || '') {
-          case 'block':
-            u('#heightBlockchain').text(obj.height)
-            const q = encodeURIComponent(u('input.search').first().value)
-            if (q === '' && Ui.page === 1) {
-              if (u('table.blocks tbody tr#b' + Number(obj.id)).length) {
-                u('table.blocks tbody tr#bd' + Number(obj.id)).remove()
-                u('table.blocks tbody tr#b' + Number(obj.id)).replace(obj.html)
-              } else {
-                u('table.blocks tbody').prepend(obj.html)
-              }
+        u('#heightBlockchain').text(obj.heightChain)
+        const q = encodeURIComponent(u('input.search').first().value)
+        if (q === '' && Ui.page === 1) {
+          if (u('table.blocks tbody tr#b' + Number(obj.heightBlock)).length) {
+            u('table.blocks tbody tr#bd' + Number(obj.heightBlock)).remove()
+            u('table.blocks tbody tr#b' + Number(obj.heightBlock)).replace(obj.html)
+          } else {
+            u('table.blocks tbody').prepend(obj.html)
+          }
 
-              // maintain page size, remove last two rows
-              if (obj.height > u('select[name=pagesize]').first().value) {
-                u('table.blocks tbody tr').last().remove()
-                u('table.blocks tbody tr').last().remove()
-              }
-            }
-            Ui._attachEvents()
-            break
-          default:
-            break
+          // maintain page size, remove last two rows
+          if (obj.heightBlock > u('select[name=pagesize]').first().value) {
+            u('table.blocks tbody tr').last().remove()
+            u('table.blocks tbody tr').last().remove()
+          }
         }
+
+        Ui._attachEvents()
       } catch (error) {
         console.error(error)
       }

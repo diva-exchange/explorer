@@ -24,6 +24,7 @@ export type Configuration = {
   http_port?: number;
   per_message_deflate?: boolean;
   url_api?: string;
+  url_feed?: string;
 };
 
 export class Config {
@@ -32,6 +33,7 @@ export class Config {
   public readonly http_port: number;
   public readonly per_message_deflate: boolean;
   public readonly url_api: string;
+  public readonly url_feed: string;
 
   constructor(c: Configuration = {}) {
     this.path_app = path.join(Object.keys(process).includes('pkg') ? path.dirname(process.execPath) : __dirname, '/../');
@@ -39,5 +41,6 @@ export class Config {
     this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
     this.per_message_deflate = c.per_message_deflate || true;
     this.url_api = c.url_api || process.env.URL_API || 'http://localhost:17468';
+    this.url_feed = c.url_feed || process.env.URL_FEED || 'ws://localhost:17469';
   }
 }

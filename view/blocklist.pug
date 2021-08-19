@@ -1,12 +1,12 @@
 each objBlock in blocks
-  tr(id='b' + Number(objBlock.id))
-    td(class='marker' data-id=objBlock.id)
-      span(data-id=objBlock.id class='icon')
+  tr(id='b' + Number(objBlock.height))
+    td(class='marker' data-id=objBlock.height)
+      span(data-id=objBlock.height class='icon')
         i(class='icon-angle-right')
     td(class='block')
-      a(data-id=objBlock.id)= Number(objBlock.id)
+      a(data-id=objBlock.height)= Number(objBlock.height)
     td(class='transactions')= objBlock.lengthTx
     td(class='datetime')= objBlock.dateTimeFormatted
-  tr(id='bd' + Number(objBlock.id))
-    td(data-id=objBlock.id class='data is-hidden' colspan='4')
+  tr(id='bd' + Number(objBlock.height))
+    td(data-id=objBlock.height class='data is-hidden' colspan='4')
 
