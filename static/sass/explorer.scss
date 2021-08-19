@@ -47,7 +47,7 @@ article.article {
   padding-left: 1rem;
 }
 
-table.blocks, table.accounts, table.assets {
+table.blocks, table.state {
   table-layout: fixed;
 
   tr td {
@@ -70,11 +70,5 @@ table.blocks, table.accounts, table.assets {
     padding-left: 3rem;
     white-space: pre-wrap;
     word-break: break-all;
-  }
-}
-
-div.summary {
-  span {
-    padding-left: 0.5rem;
   }
 }

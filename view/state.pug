@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  form(class='my-3' id='search')
+    div(class='field')
+      div(class='control has-icons-left is-expanded')
+        input(class='input is-medium search' type='text' name='q' placeholder='Filter')
+        span(class='icon is-medium is-left')
+          i(class='icon-search')
+
+  article(class='state')
+
+    table(class='state table is-fullwidth')
+      thead
+        tr
+          th(class='marker')
+          th Key
+      tbody

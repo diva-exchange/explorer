@@ -171,11 +171,17 @@ export class Explorer {
       case '/ui/blocks':
         res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug')));
         break;
+      case '/ui/state':
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug')));
+        break;
       case '/blocks':
         await this.getBlocks(req, res);
         break;
       case '/block':
         await this.getBlock(req, res);
+        break;
+      case '/state':
+        await this.getState(req, res);
         break;
       default:
         next();
@@ -224,6 +230,24 @@ export class Explorer {
 
     try {
       res.json((await this.getFromApi(url))[0]);
+    } catch (e) {
+      res.json({});
+      return;
+    }
+  }
+
+  private async getState(req: Request, res: Response) {
+    try {
+      const arrayStateKey = (await this.getFromApi(this.config.url_api + `/state/`))
+        .map((key: string, i: number) => {
+          return { html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
+              id: i + 1,
+              key: key
+            })
+          }
+        });
+
+      res.json(arrayStateKey);
     } catch (e) {
       res.json({});
       return;

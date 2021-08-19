@@ -59,12 +59,17 @@ class Ui {
 
     Ui._initWebsocket()
 
+    let q = '';
     switch (window.location.pathname) {
       case '/':
       case '/ui/blocks':
-        const q = encodeURIComponent(u('input.search').first().value.toString().trim())
+        q = encodeURIComponent(u('input.search').first().value.toString().trim())
         const pagesize = u('select[name=pagesize]').first().value
         Ui._fetchBlocks(q, 1, pagesize)
+        break
+      case '/ui/state':
+        q = encodeURIComponent(u('input.search').first().value.toString().trim())
+        Ui._fetchState(q)
         break
       case '/ui/peers':
         Ui._fetchPeers()
@@ -122,6 +127,26 @@ class Ui {
   }
 
   /**
+   * @param q {string}
+   * @private
+   */
+  static _fetchState (q = '') {
+    fetch('/state?q=' + q)
+      .then((response) => {
+        return response.json()
+      })
+      .then((response) => {
+        u('table.state tbody').html('');
+        if (Array.isArray(response)) {
+          response.forEach((row) => {
+            u('table.state tbody').append(row.html)
+          })
+        }
+        Ui._attachEvents()
+      })
+  }
+
+  /**
    * @private
    */
   static _initWebsocket () {
@@ -171,6 +196,7 @@ class Ui {
 
         Ui._attachEvents()
       } catch (error) {
+        //@FIXME logging
         console.error(error)
       }
     })
