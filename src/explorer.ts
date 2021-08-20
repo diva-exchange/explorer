@@ -81,14 +81,7 @@ export class Explorer {
 
     this.webSocketServer = new WebSocket.Server({
       server: this.httpServer,
-      clientTracking: true,
-      perMessageDeflate: this.config.per_message_deflate,
-    });
-    this.webSocketServer.on('connection', (ws: WebSocket) => {
-      ws.on('error', (error: Error) => {
-        Logger.trace(error);
-        ws.terminate();
-      });
+      clientTracking: true
     });
     this.webSocketServer.on('close', () => {
       Logger.info('WebSocketServer closing');
@@ -130,7 +123,6 @@ export class Explorer {
   private initFeed() {
     this.webSocket = new WebSocket(this.config.url_feed, {
       followRedirects: false,
-      perMessageDeflate: true,
     });
 
     this.webSocket.on('error', () => {});
@@ -223,8 +215,6 @@ export class Explorer {
       blocks: arrayBlocks,
       filter: filter,
       page: page,
-      pages: Math.ceil(this.height / pagesize),
-      sizePage: pagesize,
       height: this.height,
       html: html,
     });

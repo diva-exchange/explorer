@@ -90,22 +90,9 @@ class Ui {
         return response.json()
       })
       .then((response) => {
+        Ui.height = response.height || 1
         Ui.page = response.page || 1
-        if (Ui.page === 1) {
-          u('.paging a.first').addClass('is-hidden')
-          u('.paging a.previous').addClass('is-hidden')
-        } else {
-          u('.paging a.first').removeClass('is-hidden')
-          u('.paging a.previous').removeClass('is-hidden')
-        }
-        if (!response.pages || Ui.page === response.pages) {
-          u('.paging a.last').addClass('is-hidden')
-          u('.paging a.next').addClass('is-hidden')
-        } else {
-          u('.paging a.last').removeClass('is-hidden')
-          u('.paging a.next').removeClass('is-hidden')
-        }
-        u('#heightBlockchain').text(response.height || 0)
+
         u('#search-blocks input.search').first().value = response.filter || ''
         u('table.blocks tbody').html(response.html)
         Ui._attachEvents()
@@ -183,7 +170,7 @@ class Ui {
           u('#status-update').addClass('is-hidden')
         }, 3000)
 
-        u('#heightBlockchain').text(obj.heightChain)
+        Ui.height = obj.heightChain
         const q = encodeURIComponent(u('input.search').first().value)
         if (q === '' && Ui.page === 1) {
           if (u('table.blocks tbody tr#b' + Number(obj.heightBlock)).length) {
@@ -212,6 +199,12 @@ class Ui {
    * @private
    */
   static _attachEvents () {
+    // pages
+    Ui.pages = Math.ceil(Ui.height / u('select[name=pagesize]').first().value || Ui.height);
+
+    // height
+    u('#heightBlockchain').text(Ui.height)
+
     // search Blocks
     u('#search-blocks').off('submit').handle('submit', async () => {
       const q = encodeURIComponent(u('input.search').first().value)
@@ -239,6 +232,21 @@ class Ui {
     })
 
     // paging
+    if (Ui.page === 1) {
+      u('.paging a.first').addClass('is-hidden')
+      u('.paging a.previous').addClass('is-hidden')
+    } else {
+      u('.paging a.first').removeClass('is-hidden')
+      u('.paging a.previous').removeClass('is-hidden')
+    }
+    if (Ui.page === Ui.pages) {
+      u('.paging a.last').addClass('is-hidden')
+      u('.paging a.next').addClass('is-hidden')
+    } else {
+      u('.paging a.last').removeClass('is-hidden')
+      u('.paging a.next').removeClass('is-hidden')
+    }
+
     u('div.paging a.first').off('click').handle('click', async () => {
       const q = encodeURIComponent(u('input.search').first().value)
       const pagesize = u('select[name=pagesize]').first().value
@@ -257,7 +265,7 @@ class Ui {
     u('div.paging a.last').off('click').handle('click', async () => {
       const q = encodeURIComponent(u('input.search').first().value)
       const pagesize = u('select[name=pagesize]').first().value
-      Ui._fetchBlocks(q, -1, pagesize)
+      Ui._fetchBlocks(q, Ui.pages, pagesize)
     })
 
     // load block data
