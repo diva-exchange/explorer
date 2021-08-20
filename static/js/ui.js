@@ -264,7 +264,7 @@ class Ui {
     u('table.blocks td span, table.blocks td a').off('click').handle('click', async (e) => {
       const idBlock = u(e.currentTarget).data('id')
 
-      const d = u('td.data[data-id="' + idBlock + '"]')
+      const d = u('td.block-data[data-id="' + idBlock + '"]')
       let response = {}
       if (d.text() === '') {
         response = await (await fetch(`/block?q=${idBlock}`)).json()
