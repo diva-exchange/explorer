@@ -48,23 +48,26 @@ article.article {
 }
 
 table.blocks, table.state, table.network {
-  table-layout: fixed;
-  word-break: break-all;
-
   tr td {
     border: none;
     border-top: 1px solid $border;
   }
 
   th.marker {
-    width: 2%;
+    width: 24px;
   }
+
   td.marker {
     cursor: pointer;
     padding: 0.5em 0;
   }
 
-  td.data {
+  td.block-data, td.network-address, td.network-publickey, td.state-key, td.state-value {
+    width: min-content;
+    word-break: break-all;
+  }
+
+  td.block-data {
     border: none;
     font-family: monospace;
     font-size: 0.75rem;
