@@ -174,6 +174,9 @@ export class Explorer {
       case '/ui/state':
         res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug')));
         break;
+      case '/ui/network':
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug')));
+        break;
       case '/blocks':
         await this.getBlocks(req, res);
         break;
@@ -182,6 +185,9 @@ export class Explorer {
         break;
       case '/state':
         await this.getState(req, res);
+        break;
+      case '/network':
+        await this.getNetwork(req, res);
         break;
       default:
         next();
@@ -238,13 +244,36 @@ export class Explorer {
 
   private async getState(req: Request, res: Response) {
     try {
-      res.json((await this.getFromApi(this.config.url_api + `/state/`))
+      const filter = (req.query.q || '').toString().toLowerCase();
+      res.json((await this.getFromApi(this.config.url_api + `/state`))
         .map((data: {key: string, value: string}) => {
-          return { html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
-              k: data.key,
-              v: data.value
-            })
-          }
+          return filter && (data.key + data.value).toLowerCase().indexOf(filter) === -1
+            ? false
+            : { html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
+                k: data.key,
+                v: data.value
+              })
+            }
+        })
+      );
+    } catch (e) {
+      res.json({});
+    }
+  }
+
+  private async getNetwork(req: Request, res: Response) {
+    try {
+      const filter = (req.query.q || '').toString().toLowerCase();
+      res.json((await this.getFromApi(this.config.url_api + `/network`))
+        .map((data: any) => {
+          return filter && (data.api + data.publicKey + data.stake).toLowerCase().indexOf(filter) === -1
+            ? false
+            : { html: pug.renderFile(path.join(this.config.path_app, 'view/networklist.pug'), {
+                address: data.api,
+                publicKey: data.publicKey,
+                stake: data.stake
+              })
+            }
         })
       );
     } catch (e) {

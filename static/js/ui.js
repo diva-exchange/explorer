@@ -72,7 +72,8 @@ class Ui {
         Ui._fetchState(q)
         break
       case '/ui/network':
-        Ui._fetchNetwork()
+        q = encodeURIComponent(u('input.search').first().value.toString().trim())
+        Ui._fetchNetwork(q)
         break
     }
   }
@@ -105,23 +106,8 @@ class Ui {
           u('.paging a.next').removeClass('is-hidden')
         }
         u('#heightBlockchain').text(response.height || 0)
-        u('#search input.search').first().value = response.filter || ''
+        u('#search-blocks input.search').first().value = response.filter || ''
         u('table.blocks tbody').html(response.html)
-        Ui._attachEvents()
-      })
-  }
-
-  /**
-   * @param q {string}
-   * @private
-   */
-  static _fetchNetwork (q = '') {
-    fetch('/peers?q=' + q)
-      .then((response) => {
-        return response.json()
-      })
-      .then((response) => {
-        u('table.network tbody').html(response.html)
         Ui._attachEvents()
       })
   }
@@ -140,6 +126,26 @@ class Ui {
         if (Array.isArray(response)) {
           response.forEach((row) => {
             u('table.state tbody').append(row.html)
+          })
+        }
+        Ui._attachEvents()
+      })
+  }
+
+  /**
+   * @param q {string}
+   * @private
+   */
+  static _fetchNetwork (q = '') {
+    fetch('/network?q=' + q)
+      .then((response) => {
+        return response.json()
+      })
+      .then((response) => {
+        u('table.network tbody').html('');
+        if (Array.isArray(response)) {
+          response.forEach((row) => {
+            u('table.network tbody').append(row.html)
           })
         }
         Ui._attachEvents()
@@ -206,11 +212,23 @@ class Ui {
    * @private
    */
   static _attachEvents () {
-    // search
-    u('#search').off('submit').handle('submit', async () => {
+    // search Blocks
+    u('#search-blocks').off('submit').handle('submit', async () => {
       const q = encodeURIComponent(u('input.search').first().value)
       const pagesize = u('select[name=pagesize]').first().value
       Ui._fetchBlocks(q, 1, pagesize)
+    })
+
+    // search State
+    u('#search-state').off('submit').handle('submit', async () => {
+      const q = encodeURIComponent(u('input.search').first().value)
+      Ui._fetchState(q)
+    })
+
+    // search Network
+    u('#search-network').off('submit').handle('submit', async () => {
+      const q = encodeURIComponent(u('input.search').first().value)
+      Ui._fetchNetwork(q)
     })
 
     // pagesize
