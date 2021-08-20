@@ -49,6 +49,7 @@ article.article {
 
 table.blocks, table.state, table.network {
   table-layout: fixed;
+  word-break: break-all;
 
   tr td {
     border: none;
@@ -69,6 +70,5 @@ table.blocks, table.state, table.network {
     font-size: 0.75rem;
     padding-left: 3rem;
     white-space: pre-wrap;
-    word-break: break-all;
   }
 }
