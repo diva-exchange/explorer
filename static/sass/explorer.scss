@@ -75,3 +75,7 @@ table.blocks, table.state, table.network {
     white-space: pre-wrap;
   }
 }
+
+table.state {
+  table-layout: fixed;
+}
