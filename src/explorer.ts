@@ -278,9 +278,9 @@ export class Explorer {
           return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
         });
       });
-    } catch (error) {
+    } catch (error: any) {
       Logger.warn(`GET request failed: ${url}`);
-      Logger.trace(error);
+      Logger.trace(error.toString());
     }
     return {};
   }
