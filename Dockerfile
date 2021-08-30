@@ -17,7 +17,7 @@
 # Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
 #
 
-FROM node:12-slim AS build
+FROM node:14-slim AS build
 
 LABEL author="Konrad Baechler <konrad@diva.exchange>" \
   maintainer="Konrad Baechler <konrad@diva.exchange>" \
