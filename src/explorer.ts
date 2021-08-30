@@ -137,12 +137,12 @@ export class Explorer {
       let html: string = '';
       try {
         block = JSON.parse(message.toString());
-        this.height = block.hght > this.height ? block.hght : this.height;
+        this.height = block.height > this.height ? block.height : this.height;
         html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
           blocks: [{
-            height: block.hght,
+            height: block.height,
             lengthTx: block.tx.length,
-            dateTimeFormatted: new Date(block.tx[0].ts).toUTCString(),
+            dateTimeFormatted: new Date(block.tx[0].timestamp).toUTCString(),
             }],
         });
       } catch (e) {
@@ -196,11 +196,11 @@ export class Explorer {
     let arrayBlocks: Array<any> = [];
     try {
       arrayBlocks = (await this.getFromApi(url)).map((b: any) => {
-        this.height = b.hght > this.height ? b.hght : this.height;
+        this.height = b.height > this.height ? b.height : this.height;
         return {
-          height: b.hght,
+          height: b.height,
           lengthTx: b.tx.length,
-          dateTimeFormatted: new Date(b.tx[0].ts).toUTCString(),
+          dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString(),
         };
       });
     } catch (e) {
@@ -278,9 +278,9 @@ export class Explorer {
           return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
         });
       });
-    } catch (error: any) {
+    } catch (error) {
       Logger.warn(`GET request failed: ${url}`);
-      Logger.trace(error.toString());
+      Logger.trace(error);
     }
     return {};
   }
