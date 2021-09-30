@@ -81,7 +81,7 @@ export class Explorer {
 
     this.webSocketServer = new WebSocket.Server({
       server: this.httpServer,
-      clientTracking: true
+      clientTracking: true,
     });
     this.webSocketServer.on('close', () => {
       Logger.info('WebSocketServer closing');
@@ -129,7 +129,9 @@ export class Explorer {
 
     this.webSocket.on('close', () => {
       this.webSocket = {} as WebSocket;
-      setTimeout(() => { this.initFeed(); }, 1000);
+      setTimeout(() => {
+        this.initFeed();
+      }, 1000);
     });
 
     this.webSocket.on('message', (message: Buffer) => {
@@ -139,11 +141,12 @@ export class Explorer {
         block = JSON.parse(message.toString());
         this.height = block.height > this.height ? block.height : this.height;
         html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
-          blocks: [{
-            height: block.height,
-            lengthTx: block.tx.length,
-            dateTimeFormatted: new Date(block.tx[0].timestamp).toUTCString(),
-            }],
+          blocks: [
+            {
+              height: block.height,
+              lengthTx: block.tx.length,
+            },
+          ],
         });
       } catch (e) {
         return;
@@ -200,7 +203,6 @@ export class Explorer {
         return {
           height: b.height,
           lengthTx: b.tx.length,
-          dateTimeFormatted: new Date(b.tx[0].timestamp).toUTCString(),
         };
       });
     } catch (e) {
@@ -235,15 +237,16 @@ export class Explorer {
   private async getState(req: Request, res: Response) {
     try {
       const filter = (req.query.q || '').toString().toLowerCase();
-      res.json((await this.getFromApi(this.config.url_api + `/state`))
-        .map((data: {key: string, value: string}) => {
+      res.json(
+        (await this.getFromApi(this.config.url_api + '/state')).map((data: { key: string; value: string }) => {
           return filter && (data.key + data.value).toLowerCase().indexOf(filter) === -1
             ? false
-            : { html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
-                k: data.key,
-                v: data.value
-              })
-            }
+            : {
+                html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
+                  k: data.key,
+                  v: data.value,
+                }),
+              };
         })
       );
     } catch (e) {
@@ -254,16 +257,17 @@ export class Explorer {
   private async getNetwork(req: Request, res: Response) {
     try {
       const filter = (req.query.q || '').toString().toLowerCase();
-      res.json((await this.getFromApi(this.config.url_api + `/network`))
-        .map((data: any) => {
+      res.json(
+        (await this.getFromApi(this.config.url_api + '/network')).map((data: any) => {
           return filter && (data.api + data.publicKey + data.stake).toLowerCase().indexOf(filter) === -1
             ? false
-            : { html: pug.renderFile(path.join(this.config.path_app, 'view/networklist.pug'), {
-                address: data.api,
-                publicKey: data.publicKey,
-                stake: data.stake
-              })
-            }
+            : {
+                html: pug.renderFile(path.join(this.config.path_app, 'view/networklist.pug'), {
+                  address: data.api,
+                  publicKey: data.publicKey,
+                  stake: data.stake,
+                }),
+              };
         })
       );
     } catch (e) {

@@ -17,7 +17,7 @@
 # Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
 #
 
-FROM node:12-slim AS build
+FROM node:14-slim AS build
 
 LABEL author="Konrad Baechler <konrad@diva.exchange>" \
   maintainer="Konrad Baechler <konrad@diva.exchange>" \
@@ -29,7 +29,7 @@ COPY bin /explorer/bin
 COPY src /explorer/src
 COPY static /explorer/static
 COPY view /explorer/view
-COPY build/node12-linux-x64 /explorer/build/node12-linux-x64
+COPY build/node14-linux-x64 /explorer/build/node14-linux-x64
 COPY package.json /explorer/package.json
 COPY tsconfig.json /explorer/tsconfig.json
 

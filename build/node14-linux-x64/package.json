@@ -1,0 +1,10 @@
+{
+  "name": "@diva.exchange/explorer",
+  "author": "Konrad Baechler <konrad@diva.exchange> (https://diva.exchange)",
+  "license": "AGPL-3.0-or-later",
+  "bin": "../../dist/main.js",
+  "pkg": {
+    "scripts": "../../dist/**/*.js",
+    "targets": [ "node14-linux-x64" ]
+  }
+}

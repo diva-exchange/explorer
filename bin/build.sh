@@ -47,7 +47,7 @@ node_modules/.bin/node-sass --omit-source-map-url --output-style compressed stat
 info "Packaging..."
 rm -rf ${PROJECT_PATH}build/explorer-linux-x64
 
-cd build/node12-linux-x64
+cd build/node14-linux-x64
 pkg --no-bytecode \
   --public \
   --output ${PROJECT_PATH}build/explorer-linux-x64 \
