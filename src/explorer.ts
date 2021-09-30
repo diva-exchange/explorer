@@ -190,21 +190,22 @@ export class Explorer {
   }
 
   private async getBlocks(req: Request, res: Response) {
-    const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 0);
-    const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 0);
+    const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 1);
+    const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 1);
     const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
-    const url =
-      this.config.url_api + '/blocks/page' + (page > 0 ? '/' + page : '') + (pagesize > 0 ? '?size=' + pagesize : '');
+    const url = this.config.url_api + `/blocks/page/${page}/${pagesize}`;
 
     let arrayBlocks: Array<any> = [];
     try {
-      arrayBlocks = (await this.getFromApi(url)).map((b: any) => {
-        this.height = b.height > this.height ? b.height : this.height;
-        return {
-          height: b.height,
-          lengthTx: b.tx.length,
-        };
-      });
+      arrayBlocks = (await this.getFromApi(url))
+        .map((b: any) => {
+          this.height = b.height > this.height ? b.height : this.height;
+          return {
+            height: b.height,
+            lengthTx: b.tx.length,
+          };
+        })
+        .reverse();
     } catch (e) {
       res.json({});
       return;
@@ -223,11 +224,11 @@ export class Explorer {
   }
 
   private async getBlock(req: Request, res: Response) {
-    const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 0);
-    const url = this.config.url_api + `/blocks?gte=${id}&lte=${id}`;
+    const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 1);
+    const url = this.config.url_api + `/block/${id}`;
 
     try {
-      res.json((await this.getFromApi(url))[0]);
+      res.json(await this.getFromApi(url));
     } catch (e) {
       res.json({});
       return;
