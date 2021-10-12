@@ -1,6 +1,6 @@
 {
   "name": "@diva.exchange/explorer",
-  "version": "3.0.0-0.9",
+  "version": "3.0.1-0.9",
   "description": "diva - Distributed value exchange upholding security, reliability and privacy",
   "keywords": [
     "blockchain",
@@ -51,7 +51,7 @@
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-prettier": "^4.0.0",
     "mocha": "^9.1.2",
-    "node-sass": "^4.14.0",
+    "node-sass": "^6.0.1",
     "nyc": "^15.1.0",
     "pino-pretty": "^7.0.1",
     "prettier": "^2.4.1",
