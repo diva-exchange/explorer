@@ -34,10 +34,7 @@ export class Config {
   public readonly url_feed: string;
 
   constructor(c: Configuration = {}) {
-    this.path_app = path.join(
-      Object.keys(process).includes('pkg') ? path.dirname(process.execPath) : __dirname,
-      '/../'
-    );
+    this.path_app = path.join(__dirname, '/../');
     this.http_ip = c.http_ip || process.env.HTTP_IP || '127.0.0.1';
     this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
     this.url_api = c.url_api || process.env.URL_API || 'http://localhost:17468';

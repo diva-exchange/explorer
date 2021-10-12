@@ -40,23 +40,32 @@ fi
 
 BUILD=${BUILD}
 case ${BUILD} in
-  linux-arm)
+  linux-arm64)
     ;;
   *)
     BUILD=linux-x64
     ;;
 esac
 
-info "Transpiling TypScript to Javascript..."
-rm -rf ${PROJECT_PATH}dist/*
-node_modules/.bin/tsc
+info "Clean up..."
+rm -rf ${PROJECT_PATH}build/node14-${BUILD}/dist
+rm -rf ${PROJECT_PATH}build/node14-${BUILD}/static
+rm -rf ${PROJECT_PATH}build/node14-${BUILD}/view
+
+info "Handling static CSS and JS..."
+node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
+  static/sass/explorer.scss static/css/explorer.min.css
 cp node_modules/umbrellajs/umbrella.min.js static/js/umbrella.min.js
-node_modules/.bin/node-sass --omit-source-map-url --output-style compressed static/sass/explorer.scss static/css/explorer.min.css
+
+info "Transpiling TypScript to Javascript..."
+cd ${PROJECT_PATH}build/node14-${BUILD}
+cp -r ${PROJECT_PATH}static ./
+cp -r ${PROJECT_PATH}view ./
+${PROJECT_PATH}node_modules/.bin/tsc -p ${PROJECT_PATH} --outDir ${PROJECT_PATH}build/node14-${BUILD}/dist
 
 info "Packaging..."
 rm -rf ${PROJECT_PATH}build/explorer-${BUILD}
 
-cd build/node14-${BUILD}
 pkg --no-bytecode \
   --public \
   --output ${PROJECT_PATH}build/explorer-${BUILD} \

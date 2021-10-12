@@ -27,7 +27,9 @@ LABEL author="Konrad Baechler <konrad@diva.exchange>" \
 
 COPY bin /explorer/bin
 COPY src /explorer/src
-COPY build/node14-linux-x64 /explorer/build/node14-linux-x64
+COPY static /explorer/static
+COPY view /explorer/view
+COPY build/node14-linux-x64/package.json /explorer/build/node14-linux-x64/package.json
 COPY package.json /explorer/package.json
 COPY tsconfig.json /explorer/tsconfig.json
 
@@ -35,7 +37,7 @@ RUN cd explorer \
   && mkdir dist \
   && npm i -g pkg \
   && npm i \
-  && bin/build.sh
+  && BUILD=linux-x64 bin/build.sh
 
 FROM gcr.io/distroless/cc
 COPY --from=build /explorer/build/explorer-linux-x64 /explorer
