@@ -38,6 +38,15 @@ if ! command_exists pkg; then
   exit 2
 fi
 
+BUILD=${BUILD}
+case ${BUILD} in
+  linux-arm)
+    ;;
+  *)
+    BUILD=linux-x64
+    ;;
+esac
+
 info "Transpiling TypScript to Javascript..."
 rm -rf ${PROJECT_PATH}dist/*
 node_modules/.bin/tsc
@@ -45,10 +54,10 @@ cp node_modules/umbrellajs/umbrella.min.js static/js/umbrella.min.js
 node_modules/.bin/node-sass --omit-source-map-url --output-style compressed static/sass/explorer.scss static/css/explorer.min.css
 
 info "Packaging..."
-rm -rf ${PROJECT_PATH}build/explorer-linux-x64
+rm -rf ${PROJECT_PATH}build/explorer-${BUILD}
 
-cd build/node14-linux-x64
+cd build/node14-${BUILD}
 pkg --no-bytecode \
   --public \
-  --output ${PROJECT_PATH}build/explorer-linux-x64 \
+  --output ${PROJECT_PATH}build/explorer-${BUILD} \
   .
