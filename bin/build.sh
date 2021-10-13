@@ -25,6 +25,8 @@ PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd ${PROJECT_PATH}
 PROJECT_PATH=`pwd`/
 
+NODE_VERSION=${NODE_VERSION:-node14}
+
 source "${PROJECT_PATH}bin/echos.sh"
 source "${PROJECT_PATH}bin/helpers.sh"
 
@@ -33,10 +35,7 @@ if ! command_exists npm; then
   exit 1
 fi
 
-if ! command_exists pkg; then
-  error "pkg not available. Install it with npm i -g pkg";
-  exit 2
-fi
+npm ci
 
 BUILD=${BUILD}
 case ${BUILD} in
@@ -47,10 +46,13 @@ case ${BUILD} in
     ;;
 esac
 
+PATH_BUILD=${PROJECT_PATH}build/${NODE_VERSION}-${BUILD}
+
 info "Clean up..."
-rm -rf ${PROJECT_PATH}build/node14-${BUILD}/dist
-rm -rf ${PROJECT_PATH}build/node14-${BUILD}/static
-rm -rf ${PROJECT_PATH}build/node14-${BUILD}/view
+rm -rf ${PATH_BUILD}/dist
+rm -rf ${PATH_BUILD}/static
+rm -rf ${PATH_BUILD}/view
+rm -rf ${PATH_BUILD}/explorer
 
 info "Handling static CSS and JS..."
 node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
@@ -58,15 +60,20 @@ node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
 cp node_modules/umbrellajs/umbrella.min.js static/js/umbrella.min.js
 
 info "Transpiling TypScript to Javascript..."
-cd ${PROJECT_PATH}build/node14-${BUILD}
+cd ${PATH_BUILD}
 cp -r ${PROJECT_PATH}static ./
 cp -r ${PROJECT_PATH}view ./
-${PROJECT_PATH}node_modules/.bin/tsc -p ${PROJECT_PATH} --outDir ${PROJECT_PATH}build/node14-${BUILD}/dist
+${PROJECT_PATH}node_modules/.bin/tsc -p ${PROJECT_PATH} --outDir ${PATH_BUILD}/dist
 
-info "Packaging..."
-rm -rf ${PROJECT_PATH}build/explorer-${BUILD}
+if command_exists pkg; then
+  info "Packaging ${BUILD}..."
 
-pkg --no-bytecode \
-  --public \
-  --output ${PROJECT_PATH}build/explorer-${BUILD} \
-  .
+  pkg --no-bytecode \
+    --public \
+    --output ${PATH_BUILD}/explorer \
+    .
+  chmod a+x ${PATH_BUILD}/explorer
+else
+  info "Skipping Packaging..."
+  warn "Reason: pkg not available. Install it with npm i -g pkg";
+fi
