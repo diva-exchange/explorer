@@ -40,7 +40,7 @@ RUN cd explorer \
   && BUILD=linux-x64 bin/build.sh
 
 FROM gcr.io/distroless/cc
-COPY --from=build /explorer/build/explorer-linux-x64 /explorer
+COPY --from=build /explorer/build/node14-linux-x64/explorer-linux-x64 /explorer
 COPY package.json /package.json
 
 EXPOSE 3920

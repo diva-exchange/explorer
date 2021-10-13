@@ -160,17 +160,18 @@ export class Explorer {
   }
 
   private async routes(req: Request, res: Response, next: NextFunction) {
+    const v = require('../package.json').version;
     const _p = req.path.replace(/\/+$/, '');
     switch (_p) {
       case '':
       case '/ui/blocks':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug')));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug'), { version: v }));
         break;
       case '/ui/state':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug')));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug'), { version: v }));
         break;
       case '/ui/network':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug')));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug'), { version: v }));
         break;
       case '/blocks':
         await this.getBlocks(req, res);
