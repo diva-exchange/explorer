@@ -52,7 +52,7 @@ info "Clean up..."
 rm -rf ${PATH_BUILD}/dist
 rm -rf ${PATH_BUILD}/static
 rm -rf ${PATH_BUILD}/view
-rm -rf ${PATH_BUILD}/explorer
+rm -rf ${PATH_BUILD}/explorer-${BUILD}
 
 info "Handling static CSS and JS..."
 node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
@@ -70,9 +70,9 @@ if command_exists pkg; then
 
   pkg --no-bytecode \
     --public \
-    --output ${PATH_BUILD}/explorer \
+    --output ${PATH_BUILD}/explorer-${BUILD} \
     .
-  chmod a+x ${PATH_BUILD}/explorer
+  chmod a+x ${PATH_BUILD}/explorer-${BUILD}
 else
   info "Skipping Packaging..."
   warn "Reason: pkg not available. Install it with npm i -g pkg";
