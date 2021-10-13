@@ -17,6 +17,7 @@
  * Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
  */
 
+import fs from 'fs';
 import path from 'path';
 
 export type Configuration = {
@@ -27,6 +28,7 @@ export type Configuration = {
 };
 
 export class Config {
+  public readonly version: string;
   public readonly path_app: string;
   public readonly http_ip: string;
   public readonly http_port: number;
@@ -35,6 +37,7 @@ export class Config {
 
   constructor(c: Configuration = {}) {
     this.path_app = path.join(__dirname, '/../');
+    this.version = fs.readFileSync(path.join(this.path_app, 'static/version')).toString();
     this.http_ip = c.http_ip || process.env.HTTP_IP || '127.0.0.1';
     this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
     this.url_api = c.url_api || process.env.URL_API || 'http://localhost:17468';

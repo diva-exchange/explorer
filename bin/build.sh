@@ -25,7 +25,7 @@ PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd ${PROJECT_PATH}
 PROJECT_PATH=`pwd`/
 
-NODE_VERSION=${NODE_VERSION:-node14}
+PKG_NODE_VERSION=${PKG_NODE_VERSION:-node14}
 
 source "${PROJECT_PATH}bin/echos.sh"
 source "${PROJECT_PATH}bin/helpers.sh"
@@ -46,7 +46,7 @@ case ${BUILD} in
     ;;
 esac
 
-PATH_BUILD=${PROJECT_PATH}build/${NODE_VERSION}-${BUILD}
+PATH_BUILD=${PROJECT_PATH}build/${PKG_NODE_VERSION}-${BUILD}
 
 info "Clean up..."
 rm -rf ${PATH_BUILD}/dist

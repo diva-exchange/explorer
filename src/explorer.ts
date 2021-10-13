@@ -160,7 +160,7 @@ export class Explorer {
   }
 
   private async routes(req: Request, res: Response, next: NextFunction) {
-    const v = require(path.join(this.config.path_app, 'package.json')).version;
+    const v = this.config.version;
     const _p = req.path.replace(/\/+$/, '');
     switch (_p) {
       case '':
