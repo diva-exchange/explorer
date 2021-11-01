@@ -194,7 +194,7 @@ export class Explorer {
     const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 1);
     const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 1);
     const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
-    const url = this.config.url_api + `/blocks/page/${page}/${pagesize}`;
+    const url = this.config.url_api + `/page/${page}/${pagesize}`;
 
     let arrayBlocks: Array<any> = [];
     try {
