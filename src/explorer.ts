@@ -160,7 +160,7 @@ export class Explorer {
   }
 
   private async routes(req: Request, res: Response, next: NextFunction) {
-    const v = this.config.version;
+    const v = this.config.VERSION;
     const _p = req.path.replace(/\/+$/, '');
     switch (_p) {
       case '':

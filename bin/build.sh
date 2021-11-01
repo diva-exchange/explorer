@@ -25,8 +25,6 @@ PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd ${PROJECT_PATH}
 PROJECT_PATH=`pwd`/
 
-PKG_NODE_VERSION=${PKG_NODE_VERSION:-node14}
-
 source "${PROJECT_PATH}bin/echos.sh"
 source "${PROJECT_PATH}bin/helpers.sh"
 
@@ -37,42 +35,33 @@ fi
 
 npm ci
 
-BUILD=${BUILD}
-case ${BUILD} in
-  linux-arm64)
-    ;;
-  *)
-    BUILD=linux-x64
-    ;;
-esac
-
-PATH_BUILD=${PROJECT_PATH}build/${PKG_NODE_VERSION}-${BUILD}
+PATH_BUILD=${PROJECT_PATH}build
 
 info "Clean up..."
-rm -rf ${PATH_BUILD}/dist
-rm -rf ${PATH_BUILD}/static
-rm -rf ${PATH_BUILD}/view
-rm -rf ${PATH_BUILD}/explorer-${BUILD}
+rm -rf ${PROJECT_PATH}dist/*
+rm -rf ${PATH_BUILD}/explorer
 
 info "Handling static CSS and JS..."
 node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
   static/sass/explorer.scss static/css/explorer.min.css
 cp node_modules/umbrellajs/umbrella.min.js static/js/umbrella.min.js
 
-info "Transpiling TypScript to Javascript..."
-cd ${PATH_BUILD}
-cp -r ${PROJECT_PATH}static ./
-cp -r ${PROJECT_PATH}view ./
-${PROJECT_PATH}node_modules/.bin/tsc -p ${PROJECT_PATH} --outDir ${PATH_BUILD}/dist
+info "Transpiling TypeScript to JavaScript..."
+${PROJECT_PATH}node_modules/.bin/tsc -p ${PROJECT_PATH} --outDir ${PROJECT_PATH}dist
+rm -rf ${PROJECT_PATH}dist/version.js
+
+# create a static version file
+${PROJECT_PATH}node_modules/.bin/ts-node --files ${PROJECT_PATH}src/version.ts
+cp ${PROJECT_PATH}build/version ${PROJECT_PATH}dist/version
 
 if command_exists pkg; then
-  info "Packaging ${BUILD}..."
+  info "Packaging ..."
 
   pkg --no-bytecode \
     --public \
-    --output ${PATH_BUILD}/explorer-${BUILD} \
+    --output ${PATH_BUILD}/explorer \
     .
-  chmod a+x ${PATH_BUILD}/explorer-${BUILD}
+  chmod a+x ${PATH_BUILD}/explorer
 else
   info "Skipping Packaging..."
   warn "Reason: pkg not available. Install it with npm i -g pkg";

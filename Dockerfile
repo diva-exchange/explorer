@@ -29,18 +29,17 @@ COPY bin /explorer/bin
 COPY src /explorer/src
 COPY static /explorer/static
 COPY view /explorer/view
-COPY build/node14-linux-x64/package.json /explorer/build/node14-linux-x64/package.json
 COPY package.json /explorer/package.json
 COPY tsconfig.json /explorer/tsconfig.json
 
 RUN cd explorer \
-  && mkdir dist \
+  && mkdir build \
   && npm i -g pkg \
   && npm i \
-  && BUILD=linux-x64 bin/build.sh
+  && bin/build.sh
 
 FROM gcr.io/distroless/cc
-COPY --from=build /explorer/build/node14-linux-x64/explorer-linux-x64 /explorer
+COPY --from=build /explorer/build/explorer /explorer
 
 EXPOSE 3920
 
