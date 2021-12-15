@@ -47,7 +47,7 @@ article.article {
   padding-left: 1rem;
 }
 
-table.blocks, table.state, table.network {
+table.blocks, table.state {
   tr td {
     border: none;
     border-top: 1px solid $border;
@@ -62,7 +62,7 @@ table.blocks, table.state, table.network {
     padding: 0.5em 0;
   }
 
-  td.block-data, td.network-address, td.network-publickey, td.state-key, td.state-value {
+  td.block-data, td.state-key, td.state-value {
     width: min-content;
     word-break: break-all;
   }
@@ -78,4 +78,25 @@ table.blocks, table.state, table.network {
 
 table.state {
   table-layout: fixed;
+}
+
+div.card {
+  margin-bottom: 10px;
+}
+
+div.card-content {
+  width: 100%;
+}
+
+p.card-header-title {
+  word-break: break-all;
+}
+
+div.card-content div.content p {
+  margin: 0;
+  padding: 0;
+  max-width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

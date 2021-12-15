@@ -128,10 +128,10 @@ class Ui {
         return response.json()
       })
       .then((response) => {
-        u('table.network tbody').html('');
+        u('article.network').html('');
         if (Array.isArray(response)) {
-          response.forEach((row) => {
-            u('table.network tbody').append(row.html)
+          response.forEach((card) => {
+            u('article.network').append(card.html)
           })
         }
         Ui._attachEvents()

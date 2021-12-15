@@ -1,12 +1,11 @@
 {
   "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
-    "esModuleInterop": true,
     "downlevelIteration": true,
     "emitDecoratorMetadata": false,
+    "outDir": "dist",
     "preserveConstEnums": true,
-    "removeComments": true,
-    "sourceMap": false
+    "removeComments": true
   },
   "include": [
     "src/**/*"

@@ -26,8 +26,8 @@ import http from 'http';
 import WebSocket from 'ws';
 import { Logger } from './logger';
 import pug from 'pug';
-//@ts-ignore
 import get from 'simple-get';
+import { toB32 } from '@diva.exchange/i2p-sam/dist/i2p-sam';
 
 export class Explorer {
   private readonly config: Config;
@@ -261,11 +261,14 @@ export class Explorer {
       const filter = (req.query.q || '').toString().toLowerCase();
       res.json(
         (await this.getFromApi(this.config.url_api + '/network')).map((data: any) => {
-          return filter && (data.api + data.publicKey + data.stake).toLowerCase().indexOf(filter) === -1
+          const http = data.http.indexOf('.') === -1 ? toB32(data.http) + '.b32.i2p' : data.http;
+          const udp = data.udp.indexOf('.') === -1 ? toB32(data.udp) + '.b32.i2p' : data.udp;
+          return filter && (http + udp + data.publicKey + data.stake).toLowerCase().indexOf(filter) === -1
             ? false
             : {
                 html: pug.renderFile(path.join(this.config.path_app, 'view/networklist.pug'), {
-                  address: data.api,
+                  http: http,
+                  udp: udp,
                   publicKey: data.publicKey,
                   stake: data.stake,
                 }),

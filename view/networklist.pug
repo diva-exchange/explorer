@@ -1,7 +1,10 @@
-tr
-  td(class='network-address')
-    span= address
-  td(class='network-publickey')
-    span= publicKey
-  td(class='network-stake')
-    span= stake
+div(class='card')
+  header(class='card-header')
+    p(class='card-header-title')= publicKey
+    p(class='card-header-icon')= stake
+  div(class='card-content')
+    div(class='content')
+      p
+        a(href='http://' + http + '/about')= 'http://' + http
+      p= 'UDP: ' + udp
+
