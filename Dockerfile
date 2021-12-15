@@ -35,7 +35,7 @@ COPY tsconfig.json /explorer/tsconfig.json
 RUN cd explorer \
   && mkdir build \
   && npm i -g pkg \
-  && npm i \
+  && npm i --production \
   && bin/build.sh
 
 FROM gcr.io/distroless/cc

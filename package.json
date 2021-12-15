@@ -49,7 +49,6 @@
     "@types/express-serve-static-core": "^4.17.26",
     "@types/http-errors": "^1.8.1",
     "@types/node": "^16.11.13",
-    "@types/pino": "^7.0.4",
     "@types/pug": "^2.0.5",
     "@types/ws": "^8.2.2",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
