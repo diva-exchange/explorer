@@ -108,10 +108,10 @@ class Ui {
         return response.json()
       })
       .then((response) => {
-        u('table.state tbody').html('');
+        u('article.state').html('');
         if (Array.isArray(response)) {
-          response.forEach((row) => {
-            u('table.state tbody').append(row.html)
+          response.forEach((card) => {
+            u('article.state').append(card.html)
           })
         }
         Ui._attachEvents()

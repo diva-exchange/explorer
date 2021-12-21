@@ -246,7 +246,7 @@ export class Explorer {
             : {
                 html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
                   k: data.key,
-                  v: data.value,
+                  v: JSON.stringify(data.value, null, ' '),
                 }),
               };
         })

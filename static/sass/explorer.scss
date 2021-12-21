@@ -47,7 +47,7 @@ article.article {
   padding-left: 1rem;
 }
 
-table.blocks, table.state {
+table.blocks {
   tr td {
     border: none;
     border-top: 1px solid $border;
@@ -62,7 +62,7 @@ table.blocks, table.state {
     padding: 0.5em 0;
   }
 
-  td.block-data, td.state-key, td.state-value {
+  td.block-data {
     width: min-content;
     word-break: break-all;
   }
@@ -76,12 +76,13 @@ table.blocks, table.state {
   }
 }
 
-table.state {
-  table-layout: fixed;
+div.card div {
+  @extend .is-shadowless;
 }
 
 div.card {
-  margin-bottom: 10px;
+  border: 1px solid #dadada;
+  margin-bottom: 3px;
 }
 
 div.card-content {
