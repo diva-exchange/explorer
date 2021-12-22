@@ -63,8 +63,7 @@ class Ui {
     switch (window.location.pathname) {
       case '/':
       case '/ui/blocks':
-        q = encodeURIComponent(u('input.search').first().value.toString().trim())
-        Ui._fetchBlocks(q, 1)
+        Ui._fetchBlocks(1)
         break
       case '/ui/state':
         q = encodeURIComponent(u('input.search').first().value.toString().trim())
@@ -78,11 +77,11 @@ class Ui {
   }
 
   /**
-   * @param q
    * @param page
    * @private
    */
-  static _fetchBlocks (q = '', page = 1) {
+  static _fetchBlocks (page = 1) {
+    const q = encodeURIComponent(u('input.search').first().value).trim()
     const pagesize = u('select[name=pagesize]').first().value
     fetch('/blocks?q=' + q + '&page=' + page + '&pagesize=' + pagesize)
       .then((response) => {
@@ -92,7 +91,6 @@ class Ui {
         Ui.height = response.height || 1
         Ui.page = response.page || 1
 
-        u('#search-blocks input.search').first().value = response.filter || ''
         u('table.blocks tbody').html(response.html)
         Ui._attachEvents()
       })
@@ -188,7 +186,6 @@ class Ui {
 
         Ui._attachEvents()
       } catch (error) {
-        //@FIXME logging
         console.error(error)
       }
     })
@@ -206,8 +203,7 @@ class Ui {
 
     // search Blocks
     u('#search-blocks').off('submit').handle('submit', async () => {
-      const q = encodeURIComponent(u('input.search').first().value)
-      Ui._fetchBlocks(q, 1)
+      Ui._fetchBlocks(1)
     })
 
     // search State
@@ -224,8 +220,7 @@ class Ui {
 
     // pagesize
     u('select[name=pagesize]').off('change').handle('change', async () => {
-      const q = encodeURIComponent(u('input.search').first().value)
-      Ui._fetchBlocks(q, 1)
+      Ui._fetchBlocks(1)
     })
 
     // paging
@@ -245,20 +240,16 @@ class Ui {
     }
 
     u('div.paging a.first').off('click').handle('click', async () => {
-      const q = encodeURIComponent(u('input.search').first().value)
-      Ui._fetchBlocks(q, 1)
+      Ui._fetchBlocks(1)
     })
     u('div.paging a.previous').off('click').handle('click', async () => {
-      const q = encodeURIComponent(u('input.search').first().value)
-      Ui._fetchBlocks(q, Ui.page - 1)
+      Ui._fetchBlocks(Ui.page - 1)
     })
     u('div.paging a.next').off('click').handle('click', async () => {
-      const q = encodeURIComponent(u('input.search').first().value)
-      Ui._fetchBlocks(q, Ui.page + 1)
+      Ui._fetchBlocks(Ui.page + 1)
     })
     u('div.paging a.last').off('click').handle('click', async () => {
-      const q = encodeURIComponent(u('input.search').first().value)
-      Ui._fetchBlocks(q, Ui.pages)
+      Ui._fetchBlocks(Ui.pages)
     })
 
     // load block data

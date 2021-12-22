@@ -193,8 +193,7 @@ export class Explorer {
   private async getBlocks(req: Request, res: Response) {
     const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 1);
     const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 1);
-    const filter = String(req.query.q || '').replace(/[^\w\-+*[\]/().,;: ]/gi, '');
-    const url = this.config.url_api + `/page/${page}/${pagesize}`;
+    const url = this.config.url_api + `/page/${page}/${pagesize}?filter=${(req.query.q || '').toString()}`;
 
     let arrayBlocks: Array<any> = [];
     try {
@@ -217,7 +216,6 @@ export class Explorer {
     });
     res.json({
       blocks: arrayBlocks,
-      filter: filter,
       page: page,
       height: this.height,
       html: html,
@@ -238,18 +236,19 @@ export class Explorer {
 
   private async getState(req: Request, res: Response) {
     try {
-      const filter = (req.query.q || '').toString().toLowerCase();
       res.json(
-        (await this.getFromApi(this.config.url_api + '/state')).map((data: { key: string; value: string }) => {
-          return filter && (data.key + data.value).toLowerCase().indexOf(filter) === -1
-            ? false
-            : {
-                html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
-                  k: data.key,
-                  v: JSON.stringify(data.value, null, ' '),
-                }),
-              };
-        })
+        (await this.getFromApi(this.config.url_api + '/state?filter=' + (req.query.q || '').toString()))
+          .sort((a: any, b: any) => {
+            return a.key > b.key ? 1 : -1;
+          })
+          .map((data: any) => {
+            return {
+              html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
+                k: data.key,
+                v: JSON.stringify(data.value, null, ' '),
+              }),
+            };
+          })
       );
     } catch (e) {
       res.json({});
@@ -260,20 +259,22 @@ export class Explorer {
     try {
       const filter = (req.query.q || '').toString().toLowerCase();
       res.json(
-        (await this.getFromApi(this.config.url_api + '/network')).map((data: any) => {
-          const http = data.http.indexOf('.') === -1 ? toB32(data.http) + '.b32.i2p' : data.http;
-          const udp = data.udp.indexOf('.') === -1 ? toB32(data.udp) + '.b32.i2p' : data.udp;
-          return filter && (http + udp + data.publicKey + data.stake).toLowerCase().indexOf(filter) === -1
-            ? false
-            : {
-                html: pug.renderFile(path.join(this.config.path_app, 'view/networklist.pug'), {
-                  http: http,
-                  udp: udp,
-                  publicKey: data.publicKey,
-                  stake: data.stake,
-                }),
-              };
-        })
+        (await this.getFromApi(this.config.url_api + '/network'))
+          .sort((a: any, b: any) => (a.publicKey > b.publicKey ? 1 : -1))
+          .map((data: any) => {
+            const http = data.http.indexOf('.') === -1 ? toB32(data.http) + '.b32.i2p' : data.http;
+            const udp = data.udp.indexOf('.') === -1 ? toB32(data.udp) + '.b32.i2p' : data.udp;
+            return filter && (http + udp + data.publicKey + data.stake).toLowerCase().indexOf(filter) === -1
+              ? false
+              : {
+                  html: pug.renderFile(path.join(this.config.path_app, 'view/networklist.pug'), {
+                    http: http,
+                    udp: udp,
+                    publicKey: data.publicKey,
+                    stake: data.stake,
+                  }),
+                };
+          })
       );
     } catch (e) {
       res.json({});

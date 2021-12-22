@@ -76,7 +76,7 @@ table.blocks {
   }
 }
 
-div.card div {
+div.card, header.card-header {
   @extend .is-shadowless;
 }
 
@@ -87,6 +87,7 @@ div.card {
 
 div.card-content {
   width: 100%;
+  padding: 0;
 }
 
 p.card-header-title {
@@ -94,9 +95,7 @@ p.card-header-title {
 }
 
 div.card-content div.content p {
-  margin: 0;
-  padding: 0;
-  max-width: 80%;
+  max-width: 90%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

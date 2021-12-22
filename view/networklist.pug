@@ -4,7 +4,8 @@ div(class='card')
     p(class='card-header-icon')= stake
   div(class='card-content')
     div(class='content')
-      p
-        a(href='http://' + http + '/about')= 'http://' + http
-      p= 'UDP: ' + udp
+      pre
+        a(href='http://' + http + '/about' target='_blank')= 'http://' + http
+        br
+        = 'UDP: ' + udp
 
