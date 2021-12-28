@@ -242,10 +242,16 @@ export class Explorer {
             return a.key > b.key ? 1 : -1;
           })
           .map((data: any) => {
+            let v = '';
+            try {
+              v = JSON.stringify(JSON.parse(data.value), null, ' ');
+            } catch (error: any) {
+              v = data.value;
+            }
             return {
               html: pug.renderFile(path.join(this.config.path_app, 'view/statelist.pug'), {
                 k: data.key,
-                v: JSON.stringify(data.value, null, ' '),
+                v: v,
               }),
             };
           })

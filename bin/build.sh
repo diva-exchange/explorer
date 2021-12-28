@@ -23,10 +23,10 @@ set -e
 
 PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"/../
 cd ${PROJECT_PATH}
-PROJECT_PATH=`pwd`/
+PROJECT_PATH=`pwd`
 
-source "${PROJECT_PATH}bin/echos.sh"
-source "${PROJECT_PATH}bin/helpers.sh"
+source "${PROJECT_PATH}/bin/echos.sh"
+source "${PROJECT_PATH}/bin/helpers.sh"
 
 if ! command_exists npm; then
   error "npm not available. Install node";
@@ -35,10 +35,10 @@ fi
 
 npm ci
 
-PATH_BUILD=${PROJECT_PATH}build
+PATH_BUILD=${PROJECT_PATH}/build
 
 info "Clean up..."
-rm -rf ${PROJECT_PATH}dist/*
+rm -rf ${PROJECT_PATH}/dist/*
 rm -rf ${PATH_BUILD}/explorer
 
 info "Handling static CSS and JS..."
@@ -47,12 +47,8 @@ node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
 cp node_modules/umbrellajs/umbrella.min.js static/js/umbrella.min.js
 
 info "Transpiling TypeScript to JavaScript..."
-${PROJECT_PATH}node_modules/.bin/tsc -p ${PROJECT_PATH} --outDir ${PROJECT_PATH}dist
-rm -rf ${PROJECT_PATH}dist/version.js
-
-# create a static version file
-${PROJECT_PATH}node_modules/.bin/ts-node --files ${PROJECT_PATH}src/version.ts
-cp ${PROJECT_PATH}build/version ${PROJECT_PATH}dist/version
+${PROJECT_PATH}/node_modules/.bin/tsc -p ${PROJECT_PATH}/ --outDir ${PROJECT_PATH}/dist
+rm -rf ${PROJECT_PATH}/dist/version.js
 
 if command_exists pkg; then
   info "Packaging ..."

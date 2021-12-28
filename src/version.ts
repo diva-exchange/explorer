@@ -18,7 +18,9 @@
  */
 
 import fs from 'fs';
-import path from 'path';
 
-const pathPackage = path.join(__dirname, '../package.json');
-fs.writeFileSync(path.join(__dirname, '../build/version'), require(pathPackage).version);
+if (!fs.existsSync(__dirname + '/../package.json')) {
+  throw new Error(`File not found: ${__dirname}/../package.json`);
+}
+
+fs.writeFileSync(__dirname + '/../.version', require(__dirname + '/../package.json').version);
