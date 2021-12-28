@@ -37,7 +37,7 @@ export class Config {
 
   constructor(c: Configuration = {}) {
     this.path_app = path.join(__dirname, '/../');
-    this.VERSION = fs.readFileSync(path.join(this.path_app, '.version')).toString();
+    this.VERSION = fs.readFileSync(path.join(this.path_app, '/static/version')).toString();
     this.http_ip = c.http_ip || process.env.HTTP_IP || '127.0.0.1';
     this.http_port = c.http_port || Number(process.env.HTTP_PORT) || 3920;
     this.url_api = c.url_api || process.env.URL_API || 'http://localhost:17468';

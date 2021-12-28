@@ -23,4 +23,4 @@ if (!fs.existsSync(__dirname + '/../package.json')) {
   throw new Error(`File not found: ${__dirname}/../package.json`);
 }
 
-fs.writeFileSync(__dirname + '/../.version', require(__dirname + '/../package.json').version);
+fs.writeFileSync(__dirname + '/../static/version', require(__dirname + '/../package.json').version);
