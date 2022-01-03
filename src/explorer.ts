@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021 diva.exchange
+ * Copyright (C) 2022 diva.exchange
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -193,7 +193,8 @@ export class Explorer {
   private async getBlocks(req: Request, res: Response) {
     const pagesize = Math.floor(Number(req.query.pagesize || 0) >= 1 ? Number(req.query.pagesize) : 1);
     const page = Math.floor(Number(req.query.page || 0) >= 1 ? Number(req.query.page) : 1);
-    const url = this.config.url_api + `/page/${page}/${pagesize}?filter=${(req.query.q || '').toString()}`;
+    const q = (req.query.q || '').toString();
+    const url = this.config.url_api + (q.length ? `/blocks/search/${q}` : `/blocks/page/${page}/${pagesize}`);
 
     let arrayBlocks: Array<any> = [];
     try {
@@ -237,7 +238,7 @@ export class Explorer {
   private async getState(req: Request, res: Response) {
     try {
       res.json(
-        (await this.getFromApi(this.config.url_api + '/state/' + (req.query.q || '').toString()))
+        (await this.getFromApi(this.config.url_api + '/state/search/' + (req.query.q || '').toString()))
           .sort((a: any, b: any) => {
             return a.key > b.key ? 1 : -1;
           })
