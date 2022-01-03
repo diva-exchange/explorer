@@ -147,15 +147,16 @@ class Ui {
     Ui.websocket.addEventListener('open', () => {
       u('#status-connection').removeClass('has-text-danger').addClass('has-text-success')
       u('#status-connection i').removeClass('icon-times').addClass('icon-check')
-    })
+    }, { once: true })
 
     // Connection closed
     Ui.websocket.addEventListener('close', () => {
       u('#status-connection').removeClass('has-text-success').addClass('has-text-danger')
       u('#status-connection i').removeClass('icon-check').addClass('icon-times')
+      Ui.websocket.removeEventListener('message');
       Ui.websocket = null
       setTimeout(() => { Ui._initWebsocket() }, 2000)
-    })
+    }, { once: true })
 
     // Listen for data
     Ui.websocket.addEventListener('message', async (event) => {
