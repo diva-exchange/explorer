@@ -237,7 +237,7 @@ export class Explorer {
   private async getState(req: Request, res: Response) {
     try {
       res.json(
-        (await this.getFromApi(this.config.url_api + '/state?filter=' + (req.query.q || '').toString()))
+        (await this.getFromApi(this.config.url_api + '/state/' + (req.query.q || '').toString()))
           .sort((a: any, b: any) => {
             return a.key > b.key ? 1 : -1;
           })
