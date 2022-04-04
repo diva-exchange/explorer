@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2021 diva.exchange
+# Copyright (C) 2021-2022 diva.exchange
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ PATH_BUILD=${PROJECT_PATH}/build
 
 info "Clean up..."
 rm -rf ${PROJECT_PATH}/dist/*
-rm -rf ${PATH_BUILD}/explorer
+rm -rf ${PATH_BUILD}/explorer-linux-amd64
 
 info "Handling static CSS and JS..."
 node_modules/.bin/node-sass --omit-source-map-url --output-style compressed \
@@ -55,9 +55,9 @@ if command_exists pkg; then
 
   pkg --no-bytecode \
     --public \
-    --output ${PATH_BUILD}/explorer \
+    --output ${PATH_BUILD}/explorer-linux-amd64 \
     .
-  chmod a+x ${PATH_BUILD}/explorer
+  chmod a+x ${PATH_BUILD}/explorer-linux-amd64
 else
   info "Skipping Packaging..."
   warn "Reason: pkg not available. Install it with npm i -g pkg";

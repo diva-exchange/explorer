@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021 diva.exchange
+# Copyright (C) 2021-2022 diva.exchange
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ RUN cd explorer \
   && bin/build.sh
 
 FROM gcr.io/distroless/cc
-COPY --from=build /explorer/build/explorer /explorer
+COPY --from=build /explorer/build/explorer-linux-amd64 /explorer
 
 EXPOSE 3920
 
