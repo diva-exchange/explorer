@@ -19,7 +19,6 @@
 
 'use strict';
 
-/* global fetch */
 /* global window */
 /* global document */
 
@@ -28,10 +27,6 @@
 
 // @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
 /* global WebSocket */
-
-if (!u || !WebSocket) {
-  throw new Error('invalid state');
-}
 
 // wait for rendered UI and available dependencies to initialize JS
 setTimeout( () => { __initUi(); }, 100);

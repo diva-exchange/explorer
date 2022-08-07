@@ -125,8 +125,6 @@ export class Explorer {
       followRedirects: false,
     });
 
-    this.webSocket.on('error', () => {});
-
     this.webSocket.on('close', () => {
       this.webSocket = {} as WebSocket;
       setTimeout(() => {
