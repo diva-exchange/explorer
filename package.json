@@ -1,6 +1,6 @@
 {
   "name": "@diva.exchange/explorer",
-  "version": "3.1.4-0.34.1",
+  "version": "3.2.0-0.34.1",
   "description": "diva - Distributed value exchange upholding security, reliability and privacy",
   "keywords": [
     "blockchain",
@@ -18,6 +18,7 @@
   },
   "bin": "dist/main.js",
   "scripts": {
+    "build-css": "node-sass --omit-source-map-url --output-style compressed static/sass/explorer.scss static/css/explorer.min.css",
     "lint": "prettier -w \"**/*.ts\" && eslint --fix src/ --ext .ts && eslint --fix static/js/ui.js",
     "start-dev": "NODE_ENV=development ts-node --files src/main.ts | pino-pretty -t -i pid,hostname",
     "test": "TS_NODE_PROJECT=./test/tsconfig.json NODE_ENV=test LOG_LEVEL=trace nyc mocha",
@@ -49,11 +50,11 @@
     "@types/express": "^4.17.13",
     "@types/express-serve-static-core": "^4.17.30",
     "@types/http-errors": "^1.8.2",
-    "@types/node": "^18.6.4",
+    "@types/node": "^18.6.5",
     "@types/pug": "^2.0.6",
     "@types/ws": "^8.5.3",
-    "@typescript-eslint/eslint-plugin": "^5.32.0",
-    "@typescript-eslint/parser": "^5.32.0",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
     "bulma": "^0.9.4",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",

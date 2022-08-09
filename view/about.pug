@@ -1,0 +1,70 @@
+extends layout
+
+block content
+
+  article(class='article about')
+    div(class='container')
+      h1(class='is-size-1') Thank you
+      div(class='content').
+        #[a(href='https://diva.exchange') DIVA.EXCHANGE]
+        is a community project open to everyone. As a community we develop open source software enabling everyone to
+        be in full control over its own digital values. Without discrimination or storage of personal information.
+      div(class='content').
+        If you want to support our mission please consider a donation or - even better - join the team and
+        #[em contribute] (software development, documentation, testing, illustrations, translations,
+        issue handling and much, much more). If you have question just get in
+        #[a(href='https://t.me/diva_exchange_chat_de') touch].
+
+      h2(class='is-size-2') How to donate
+      div(class='columns')
+        div(class='column')
+          div(class='content').
+            Please use #[a(href='monero:42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx' target='_blank') Monero (XMR)]:
+          div(class='content')
+            a(href='monero:42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx' target='_blank')
+              img(src='/media/diva-exchange-monero-qr-code.jpg' width='250' height='250')
+        div(class='column')
+          div(class='content').
+            ...or #[a(href='bitcoin:3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs' target='_blank') Bitcoin (BTC)]:
+          div(class='content')
+            a(href='bitcoin:3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs' target='_blank')
+              img(src='/media/diva-exchange-bitcoin-qr-code.jpg' width='250' height='250')
+
+      h2(class='is-size-2') Try it
+      div(class='content').
+        What about storing some arbitrary data (limited to 64 bytes, though) on the test chain?
+        OK, go for it (did you already #[em donate or contribute]?):
+      div(class='content')
+        form(id='demo-tx')
+          div(class='field has-addons')
+            div(class='control is-expanded')
+              input(class='input is-medium' type='text' name='add' placeholder='Arbitrary data...' maxlength=64)
+            div(class='control')
+              button(type='submit' class='button is-medium') OK
+      div(class='content').
+        After storing some data (which was just after your #[em contribution], right?), you'll probably find the data
+        a few seconds later on the test chain.
+        Use the filter function to search for the data. This is a cloud service and just
+        for demonstration purposes. To enjoy the privacy functions of DIVA, install a local version of
+        #[a(href='https://github.com/diva-exchange' target='_blank') DIVA].
+
+      h2(class='is-size-2') Community
+      div(class='content').
+        Meet us on #[a(href='https://t.me/diva_exchange_chat_de') Telegram]. We're an open, diverse, friendly and welcoming
+        community. It is a safe place to be and we all strive to share knowledge and to increase wisdom and serenity.
+
+      h2(class='is-size-2') Software
+      div(class='content').
+        We develop only free and open stuff at #[a(href='https://diva.exchange') DIVA.EXCHANGE].
+        Our source code, documentation and alike is mirrored to software repositories like
+        #[a(href='https://github.com/diva-exchange' target='_blank') Github].
+        Please #[a(href='https://t.me/diva_exchange_chat_de') join] the development community!
+
+      h2(class='is-size-2') Licenses
+      div(class='content').
+        Open Source licenses as AGPLv3 or better are in place. Please visit the Software Repositories to get a copy.
+
+      h2(class='is-size-2') Version
+      div(class='content').
+        This instance of #[a(href='https://github.com/diva-exchange/explorer' target='_blank') divachain explorer]
+        is running on version #[span= version].

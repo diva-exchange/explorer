@@ -37,6 +37,8 @@ export class Explorer {
   private webSocket: WebSocket = {} as WebSocket;
   private height: number = 0;
 
+  private timeoutInit: number = 5000;
+
   constructor(config: Config) {
     this.config = config;
 
@@ -83,8 +85,15 @@ export class Explorer {
       server: this.httpServer,
       clientTracking: true,
     });
+    this.webSocketServer.on('connection', () => {
+       // Backend status
+       this.webSocket.readyState === WebSocket.OPEN && this.broadcastStatus(true);
+    });
     this.webSocketServer.on('close', () => {
       Logger.info('WebSocketServer closing');
+    });
+    this.webSocketServer.on('error', (error: Error) => {
+      Logger.trace(`WebSocketServer onError: ${error.toString()}`);
     });
   }
 
@@ -121,40 +130,84 @@ export class Explorer {
   }
 
   private initFeed() {
+    // feed to/from chain
     this.webSocket = new WebSocket(this.config.url_feed, {
       followRedirects: false,
+      perMessageDeflate: false,
     });
 
-    this.webSocket.on('close', () => {
-      this.webSocket = {} as WebSocket;
-      setTimeout(() => {
-        this.initFeed();
-      }, 1000);
+    this.webSocket.on('open', () => {
+      this.timeoutInit = 5000;
+      // Backend status
+      this.broadcastStatus(true);
+
+      (async () => {
+        try {
+          // get genesis block
+          this.broadcastBlock(await this.getFromApi(this.config.url_api + '/block/1'));
+        } catch (error: any) {
+          Logger.warn(`WebSocket.onOpen(), GET request failed: ${this.config.url_api}/block/1 - ${error.toString()}`);
+          this.height = 0;
+        }
+      })();
     });
 
     this.webSocket.on('message', (message: Buffer) => {
-      let block: any = {};
-      let html: string = '';
       try {
-        block = JSON.parse(message.toString());
-        this.height = block.height > this.height ? block.height : this.height;
-        html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
-          blocks: [
-            {
-              height: block.height,
-              lengthTx: block.tx.length,
-            },
-          ],
-        });
-      } catch (e) {
-        return;
-      }
-      if (html.length) {
-        this.webSocketServer.clients.forEach((ws) => {
-          ws.send(JSON.stringify({ heightChain: this.height, heightBlock: block.height, html: html }));
-        });
+        this.broadcastBlock(JSON.parse(message.toString()));
+      } catch (error: any) {
+        Logger.warn(`WebSocket.onMessage(): ${error.toString()}`);
       }
     });
+
+    this.webSocket.on('close', (code, reason) => {
+      // Backend status
+      this.broadcastStatus(false);
+
+      this.timeoutInit = Math.floor(this.timeoutInit * 1.5 > 60000 ? 60000 : this.timeoutInit * 1.5);
+      setTimeout(() => {
+        this.initFeed();
+      }, this.timeoutInit);
+      this.webSocket = {} as WebSocket;
+      this.height = 0;
+
+      Logger.trace(`WebSocket onClose: ${code} ${reason}`);
+    });
+
+    this.webSocket.on('error', (error: Error) => {
+      Logger.trace(`WebSocket onError: ${error.toString()}`);
+    });
+  }
+
+  private broadcastBlock(block: any) {
+    try {
+      this.height = block.height > this.height ? block.height : this.height;
+      const html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
+        blocks: [
+          {
+            height: block.height,
+            lengthTx: block.tx.length,
+          },
+        ],
+      });
+      this.webSocketServer.clients.forEach((ws) => {
+        ws.readyState === WebSocket.OPEN &&
+          ws.send(JSON.stringify({ type: 'block', heightChain: this.height, heightBlock: block.height, html: html }));
+      });
+    } catch (error: any) {
+      Logger.warn(`broadcastBlock(): ${error.toString()}`);
+    }
+  }
+
+  private broadcastStatus(status: any) {
+    try {
+      this.webSocketServer.clients.forEach((ws) => {
+        ws.readyState === WebSocket.OPEN &&
+          ws.send(JSON.stringify({ type: 'status', status: status }));
+      });
+    } catch (error: any) {
+      Logger.warn(`broadcastStatus(): ${error.toString()}`);
+    }
   }
 
   private async routes(req: Request, res: Response, next: NextFunction) {
@@ -171,6 +224,9 @@ export class Explorer {
       case '/ui/network':
         res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug'), { version: v }));
         break;
+      case '/ui/about':
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/about.pug'), { version: v }));
+        break;
       case '/blocks':
         await this.getBlocks(req, res);
         break;
@@ -182,6 +238,9 @@ export class Explorer {
         break;
       case '/network':
         await this.getNetwork(req, res);
+        break;
+      case '/tx':
+        await this.putTx(req, res);
         break;
       default:
         next();
@@ -205,7 +264,7 @@ export class Explorer {
           };
         })
         .reverse();
-    } catch (e) {
+    } catch (error: any) {
       res.json({});
       return;
     }
@@ -222,21 +281,21 @@ export class Explorer {
   }
 
   private async getBlock(req: Request, res: Response) {
-    const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 1);
-    const url = this.config.url_api + `/block/${id}`;
-
+    const height = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 1);
     try {
-      res.json(await this.getFromApi(url));
-    } catch (e) {
+      res.json(await this.getFromApi(this.config.url_api + `/block/${height}`));
+    } catch (error: any) {
+      Logger.warn(`getBlock(), GET request failed: ${this.config.url_api}/block/${height} - ${error.toString()}`);
       res.json({});
       return;
     }
   }
 
   private async getState(req: Request, res: Response) {
+    const url = this.config.url_api + '/state/search/' + (req.query.q || '').toString();
     try {
       res.json(
-        (await this.getFromApi(this.config.url_api + '/state/search/' + (req.query.q || '').toString()))
+        (await this.getFromApi(url))
           .sort((a: any, b: any) => {
             return a.key > b.key ? 1 : -1;
           })
@@ -255,16 +314,18 @@ export class Explorer {
             };
           })
       );
-    } catch (e) {
+    } catch (error: any) {
+      Logger.warn(`getState(), GET request failed: ${url} - ${error.toString()}`);
       res.json({});
     }
   }
 
   private async getNetwork(req: Request, res: Response) {
+    const filter = (req.query.q || '').toString().toLowerCase();
+    const url = this.config.url_api + '/network';
     try {
-      const filter = (req.query.q || '').toString().toLowerCase();
       res.json(
-        (await this.getFromApi(this.config.url_api + '/network'))
+        (await this.getFromApi(url))
           .sort((a: any, b: any) => (a.publicKey > b.publicKey ? 1 : -1))
           .map((data: any) => {
             const http = data.http.indexOf('.') === -1 ? toB32(data.http) + '.b32.i2p' : data.http;
@@ -281,23 +342,49 @@ export class Explorer {
                 };
           })
       );
-    } catch (e) {
+    } catch (error: any) {
+      Logger.warn(`getNetwork(), GET request failed: ${url} - ${error.toString()}`);
+      res.json({});
+    }
+  }
+
+  private async putTx(req: Request, res: Response) {
+    const txData = (req.query.q || '').toString().slice(0, 64);
+    const url = this.config.url_api + '/transaction';
+    try {
+      const aC = [ { seq: 1, command: 'data', ns: 'testnet:explorer:diva:exchange', d: txData }];
+      const result = await this.putToApi(url, aC);
+      return res.json(result);
+    } catch (error: any) {
+      Logger.warn(`putTx(), PUT request failed: ${url} - ${error.toString()}`);
       res.json({});
     }
   }
 
   private async getFromApi(url: string): Promise<any> {
-    try {
-      return await new Promise((resolve, reject) => {
-        get.concat({ url: url, timeout: 200 }, (_error: Error, res: object, data: Buffer) => {
-          return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
-        });
+    return new Promise((resolve, reject) => {
+      get.concat({
+        url: url,
+        timeout: 1000,
+        json: true,
+      }, (_error: Error, res: Response, data: Buffer) => {
+        _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
       });
-    } catch (error: any) {
-      Logger.warn(`GET request failed: ${url}`);
-      Logger.trace(error.toString());
-    }
-    return {};
+    });
+  }
+
+  private async putToApi(url: string, arrayCommand: Array<any>): Promise<any> {
+    return new Promise((resolve, reject) => {
+      get.concat({
+        method: 'PUT',
+        url: url,
+        timeout: 1000,
+        body: arrayCommand,
+        json: true,
+      }, (_error: Error, res: Response, data: Buffer) => {
+        _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
+      });
+    });
   }
 
   private error(err: any, req: Request, res: Response, next: NextFunction) {

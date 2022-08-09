@@ -1,25 +1,41 @@
-nav(class='navbar container is-fixed-top top' role='navigation' aria-label='main navigation')
+nav(class='navbar is-fixed-top top' role='navigation' aria-label='main navigation')
+  div(class='container px-2')
+    div(class='navbar-brand')
+      a(class='navbar-item' href='https://diva.exchange' target='_blank')
+        img(src='/media/diva-exchange-text-logo180x30.png' width='180' height='30')
 
-  div(class='navbar-brand')
-    a(class='navbar-item' href='https://diva.exchange' target='_blank')
-      img(src='/media/diva-exchange-logo-32x32.png' width='32' height='32')
+      a(role='button' class='navbar-burger' data-target='main-menu' aria-label='menu' aria-expanded='false')
+        span(aria-hidden='true')
+        span(aria-hidden='true')
+        span(aria-hidden='true')
 
-    a(role='button' class='navbar-burger' data-target='main-menu' aria-label='menu' aria-expanded='false')
-      span(aria-hidden='true')
-      span(aria-hidden='true')
-      span(aria-hidden='true')
+    div(id='main-menu' class='navbar-menu')
+      div(class='navbar-start')
+        a(class='navbar-item is-tab' href='/ui/blocks')
+          span(class='icon')
+            i(class='icon-layer-group')
+          span Blocks
+        a(class='navbar-item is-tab' href='/ui/state')
+          span(class='icon')
+            i(class='icon-stream')
+          span State
+        a(class='navbar-item is-tab' href='/ui/network')
+          span(class='icon')
+            i(class='icon-network-wired')
+          span Network
+        a(class='navbar-item is-tab' href='/ui/about')
+          span(class='icon')
+            i(class='icon-users')
+          span About
 
-  div(id='main-menu' class='navbar-menu')
-    div(class='navbar-start')
-      a(class='navbar-item is-tab' href='/ui/blocks')
-        span(class='icon')
-          i(class='icon-layer-group')
-        span Blocks
-      a(class='navbar-item is-tab' href='/ui/state')
-        span(class='icon')
-          i(class='icon-stream')
-        span State
-      a(class='navbar-item is-tab' href='/ui/network')
-        span(class='icon')
-          i(class='icon-network-wired')
-        span Network
+      div(class='navbar-end')
+        div(class='navbar-item status ml-4 mr-2 pl-2')
+          div(class='content is-size-7 p-0 m-0')
+            span(class='status-update has-text-centered has-text-weight-bold mr-2 animated-hidden')
+              span STATUS
+            span(class='has-text-grey-light') UI
+              span(id='status-ui' class='has-text-weight-bold icon')
+                i(class='status-ui icon-times' title='UI')
+            span(class='has-text-grey-light') Chain
+              span(id='status-chain' class='has-text-weight-bold icon')
+                i(class='status-chain icon-times' title='Chain')

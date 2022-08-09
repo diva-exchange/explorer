@@ -47,7 +47,14 @@ class Ui {
   /**
    * @type {number}
    */
-  static page = 0;
+  static height = 0;
+
+  /**
+   * @type {number}
+   */
+  static page = 1;
+
+  static timeoutNotification = null;
 
   /**
    * @public
@@ -79,6 +86,8 @@ class Ui {
       case '/ui/network':
         Ui._fetchNetwork(Ui._getSearchString());
         break;
+      default:
+        Ui._attachEvents();
     }
   }
 
@@ -88,15 +97,23 @@ class Ui {
    */
   static _fetchBlocks (page = 1) {
     const pagesize = u('select[name=pagesize]').first().value;
-    fetch('/blocks?q=' + Ui._getSearchString() + '&page=' + page + '&pagesize=' + pagesize)
+    const q = Ui._getSearchString();
+    if (q !== '') {
+      u('div.paging').addClass('is-hidden');
+      u('div.select').addClass('is-hidden');
+    } else {
+      u('div.paging').removeClass('is-hidden');
+      u('div.select').removeClass('is-hidden');
+    }
+    fetch('/blocks?q=' + q + '&page=' + page + '&pagesize=' + pagesize)
       .then((response) => {
         return response.json();
       })
       .then((response) => {
-        Ui.height = response.height || 1;
+        Ui.height = response.height || 0;
         Ui.page = response.page || 1;
 
-        u('table.blocks tbody').html(response.html);
+        u('article.blocks table tbody').html(response.html);
         Ui._attachEvents();
       });
   }
@@ -144,55 +161,118 @@ class Ui {
   /**
    * @private
    */
+  static _putTx() {
+    const q = Ui._getDemoTxString();
+    q.length > 0 && fetch('/tx?q=' + q)
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        Ui._updateUIStatus(response.ident || '');
+        u('form#demo-tx input').first().value = '';
+      });
+  }
+
+  /**
+   * @private
+   */
   static _initWebsocket () {
     // connect to local websocket
     Ui.websocket = new WebSocket((/s:/.test(document.location.protocol) ? 'wss://' : 'ws://') + document.location.host);
 
     // Connection opened
     Ui.websocket.addEventListener('open', () => {
-      u('#status-connection').removeClass('has-text-danger').addClass('has-text-success');
-      u('#status-connection i').removeClass('icon-times').addClass('icon-check');
+      u('#status-ui').addClass('online');
+      u('#status-ui i').removeClass('icon-times').addClass('icon-check');
     }, { once: true });
 
     // Connection closed
     Ui.websocket.addEventListener('close', () => {
-      u('#status-connection').removeClass('has-text-success').addClass('has-text-danger');
-      u('#status-connection i').removeClass('icon-check').addClass('icon-times');
+      u('#status-ui').removeClass('online');
+      u('#status-ui i').removeClass('icon-check').addClass('icon-times');
       Ui.websocket = null;
       setTimeout(() => { Ui._initWebsocket(); }, 2000);
     }, { once: true });
 
     // Listen for data
     Ui.websocket.addEventListener('message', async (event) => {
-      let obj;
       try {
-        obj = JSON.parse(event.data);
-        u('#status-update').removeClass('is-hidden');
-        setTimeout(() => {
-          u('#status-update').addClass('is-hidden');
-        }, 3000);
-
-        Ui.height = obj.heightChain;
-        if (Ui._getSearchString() === '' && Ui.page === 1) {
-          if (u('table.blocks tbody tr#b' + Number(obj.heightBlock)).length) {
-            u('table.blocks tbody tr#bd' + Number(obj.heightBlock)).remove();
-            u('table.blocks tbody tr#b' + Number(obj.heightBlock)).replace(obj.html);
-          } else {
-            u('table.blocks tbody').prepend(obj.html);
-          }
-
-          // maintain page size, remove last two rows
-          if (obj.heightBlock > u('select[name=pagesize]').first().value) {
-            u('table.blocks tbody tr').last().remove();
-            u('table.blocks tbody tr').last().remove();
-          }
+        const obj = JSON.parse(event.data);
+        switch (obj.type) {
+          case 'block':
+            Ui._msgBlock(obj);
+            break;
+          case 'status':
+            Ui._msgStatus(obj);
+            break;
+          default:
+            return;
         }
-
-        Ui._attachEvents();
-      } catch (error) {
-        console.error(error);
-      }
+      } catch (error) {}
     });
+  }
+
+  /**
+   * @private
+   */
+  static _msgBlock (block) {
+    if (!Object(block).hasOwnProperty('heightChain')) {
+      return;
+    }
+
+    if (!u('#status-chain').hasClass('online')) {
+      u('#status-chain').addClass('online');
+      u('#status-chain i').removeClass('icon-times').addClass('icon-check');
+    }
+
+    Ui.height = block.heightChain;
+    Ui._updateUIStatus('# ' + Ui.height);
+
+    if (Ui._getSearchString() === '' && Ui.page === 1) {
+      if (u('article.blocks table tbody tr#b' + Number(block.heightBlock)).length) {
+        u('article.blocks table tbody tr#bd' + Number(block.heightBlock)).remove();
+        u('article.blocks table tbody tr#b' + Number(block.heightBlock)).replace(block.html);
+      } else {
+        u('article.blocks table tbody').prepend(block.html);
+      }
+
+      // maintain page size, remove last two rows
+      if (block.heightBlock > u('select[name=pagesize]').first().value) {
+        u('article.blocks table tbody tr').last().remove();
+        u('article.blocks table tbody tr').last().remove();
+      }
+    }
+
+    Ui._attachEvents();
+  }
+
+  /**
+   * @private
+   */
+  static _msgStatus (status) {
+    if (!Object(status).hasOwnProperty('status')) {
+      return;
+    }
+
+    if (status.status) {
+      u('#status-chain').addClass('online');
+      u('#status-chain i').removeClass('icon-times').addClass('icon-check');
+    } else {
+      Ui._updateUIStatus('Chain offline');
+      u('#status-chain').removeClass('online');
+      u('#status-chain i').removeClass('icon-check').addClass('icon-times');
+    }
+  }
+
+  /**
+   * @private
+   */
+  static _updateUIStatus(s) {
+    clearTimeout(Ui.timeoutNotification);
+    u('div.status .status-update').text(s).addClass('animated-visible').removeClass('animated-hidden');
+    Ui.timeoutNotification = setTimeout(() => {
+      u('div.status .status-update').addClass('animated-hidden').removeClass('animated-visible');
+    }, 5000);
   }
 
   /**
@@ -200,31 +280,25 @@ class Ui {
    */
   static _attachEvents () {
     // pages
-    Ui.pages = Math.ceil(Ui.height / u('select[name=pagesize]').first().value || Ui.height);
-
-    if (Ui._getSearchString() !== '') {
-      u('.paging').addClass('is-hidden');
-      u('div.select').addClass('is-hidden');
-    } else {
-      u('.paging').removeClass('is-hidden');
-      u('div.select').removeClass('is-hidden');
-    }
-
-    // height
-    u('#heightBlockchain').text(Ui.height);
+    Ui.pages = Ui.height > 0 ? Math.ceil(Ui.height / u('select[name=pagesize]').first().value) : 1;
 
     // search Blocks
-    u('#search-blocks').off('submit').handle('submit', async () => {
+    u('form#demo-tx').off('submit').handle('submit', () => {
+      Ui._putTx();
+    });
+
+    // search Blocks
+    u('form#search-blocks').off('submit').handle('submit', async () => {
       Ui._fetchBlocks(1);
     });
 
     // search State
-    u('#search-state').off('submit').handle('submit', async () => {
+    u('form#search-state').off('submit').handle('submit', async () => {
       Ui._fetchState(Ui._getSearchString());
     });
 
     // search Network
-    u('#search-network').off('submit').handle('submit', async () => {
+    u('form#search-network').off('submit').handle('submit', async () => {
       Ui._fetchNetwork(Ui._getSearchString());
     });
 
@@ -235,35 +309,35 @@ class Ui {
 
     // paging
     if (Ui.page === 1) {
-      u('.paging a.first').addClass('is-hidden');
-      u('.paging a.previous').addClass('is-hidden');
+      u('a.paging.first').addClass('is-hidden');
+      u('a.paging.previous').addClass('is-hidden');
     } else {
-      u('.paging a.first').removeClass('is-hidden');
-      u('.paging a.previous').removeClass('is-hidden');
+      u('a.paging.first').removeClass('is-hidden');
+      u('a.paging.previous').removeClass('is-hidden');
     }
     if (Ui.page === Ui.pages) {
-      u('.paging a.last').addClass('is-hidden');
-      u('.paging a.next').addClass('is-hidden');
+      u('a.paging.last').addClass('is-hidden');
+      u('a.paging.next').addClass('is-hidden');
     } else {
-      u('.paging a.last').removeClass('is-hidden');
-      u('.paging a.next').removeClass('is-hidden');
+      u('a.paging.last').removeClass('is-hidden');
+      u('a.paging.next').removeClass('is-hidden');
     }
 
-    u('div.paging a.first').off('click').handle('click', async () => {
+    u('a.paging.first').off('click').handle('click', async () => {
       Ui._fetchBlocks(1);
     });
-    u('div.paging a.previous').off('click').handle('click', async () => {
+    u('a.paging.previous').off('click').handle('click', async () => {
       Ui._fetchBlocks(Ui.page - 1);
     });
-    u('div.paging a.next').off('click').handle('click', async () => {
+    u('a.paging.next').off('click').handle('click', async () => {
       Ui._fetchBlocks(Ui.page + 1);
     });
-    u('div.paging a.last').off('click').handle('click', async () => {
+    u('a.paging.last').off('click').handle('click', async () => {
       Ui._fetchBlocks(Ui.pages);
     });
 
     // load block data
-    u('table.blocks td span, table.blocks td a').off('click').handle('click', async (e) => {
+    u('article.blocks table td span, article.blocks table td a').off('click').handle('click', async (e) => {
       const idBlock = u(e.currentTarget).data('id');
 
       const d = u('td.block-data[data-id="' + idBlock + '"]');
@@ -288,5 +362,12 @@ class Ui {
    */
   static _getSearchString() {
     return encodeURIComponent(u('input.search').first().value.toString().trim());
+  }
+
+  /**
+   * @private
+   */
+  static _getDemoTxString() {
+    return encodeURIComponent(u('form#demo-tx input').first().value.toString());
   }
 }

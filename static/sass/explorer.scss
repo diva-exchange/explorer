@@ -1,5 +1,34 @@
 @charset "utf-8";
 
+$white: hsl(0,0%,100%);
+$diva-blue: hsl(199,71%,20%);
+$dark-blue: #0d3345;
+$light-green: #dbf514;
+
+$scheme-main: $diva-blue;
+$scheme-main-bis: hsl(199,71%,18%);
+$scheme-main-ter: hsl(199,71%,16%);
+$scheme-invert: hsl(0,0%,100%);
+$scheme-invert-bis: hsl(0,0%,98%);
+$scheme-invert-ter: hsl(0,0%,96%);
+
+$background: $diva-blue;
+$text: $white;
+$shadow: none !important;
+$navbar-box-shadow-size: 0 0 0 0;
+
+$link: $light-green;
+$link-hover: $link;
+$link-hover-border: $link;
+$link-active: $link;
+$link-visited: $link;
+$link-focus: $link;
+$link-focus-border: $link;
+
+$grey: hsl(0,0%,95%);
+$grey-dark: hsl(0,0%,90%);
+$grey-darker: hsl(0,0%,85%);
+
 @import "../../node_modules/bulma/bulma";
 
 html.error {
@@ -11,17 +40,37 @@ html.error {
   }
 }
 
+/* reset */
+body {
+  padding: 1.5rem 0.5rem;
+}
+section.section {
+  margin: 0;
+  padding: 0;
+}
+article.article {
+  margin-top: 2rem;
+}
+
+/* animations */
+.animated-hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1s, opacity 1s linear;
+}
+.animated-visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1s linear;
+}
+
 nav.navbar.top, .navbar-menu {
-  background-color: #0f4057;
-  min-height: 70px;
+  background-color: $dark-blue;
+  box-shadow: none !important;
 
   .navbar-item img {
     max-height: none;
     margin-right: 30px;
-  }
-
-  .navbar-item, .navbar-burger {
-    color: #ffffff;
   }
 
   .navbar-item.is-tab.is-active {
@@ -33,56 +82,87 @@ nav.navbar.top, .navbar-menu {
     border-bottom-color: #dbf514;
     color: #dbf514;
   }
-}
 
-section.section {
-  padding: 1rem 0 1.5rem;
-}
-
-article.article {
-  padding: 0 0.5rem;
-}
-
-#status-connection {
-  padding-left: 1rem;
-}
-
-table.blocks {
-  tr td {
-    border: none;
-    border-top: 1px solid $border;
-  }
-
-  th.marker {
-    width: 24px;
-  }
-
-  td.marker {
-    cursor: pointer;
-    padding: 0.5em 0;
-  }
-
-  td.block-data {
-    width: min-content;
-    word-break: break-all;
-  }
-
-  td.block-data {
-    border: none;
-    font-family: monospace;
-    font-size: 0.75rem;
-    padding-left: 3rem;
-    white-space: pre-wrap;
+  .navbar-item.status {
+    .status-update, .online {
+      color: $link;
+    }
+    span {
+      padding-left: 1rem;
+    }
   }
 }
 
-div.card, header.card-header {
-  @extend .is-shadowless;
+@include touch {
+  // Styles applied
+  // below $desktop
+  .navbar-burger {
+    background-color: transparent !important;
+  }
+
+  .navbar-menu {
+    padding: 0 0 0.5rem 0;
+    text-align: right;
+  }
+  .navbar-item {
+    border-bottom-width: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0 !important;
+    min-height: 2.5rem !important;
+  }
+  .navbar-item.status {
+    margin-top: 0.5rem !important;
+    margin-left: 0.5rem !important;
+    border-top: 1px solid $border !important;
+  }
+}
+
+article.blocks {
+  table {
+    thead th {
+      background-color: $dark-blue;
+      border: none !important;
+    }
+
+    tbody tr td {
+      border: none;
+    }
+
+    tbody tr:nth-child(2n) {
+      border-bottom: 1px solid $dark-blue;
+    }
+
+    th.marker {
+      width: 24px;
+    }
+
+    td.marker {
+      cursor: pointer;
+      padding: 0.5em 0;
+    }
+
+    td.block-data {
+      width: min-content;
+      word-break: break-all;
+    }
+
+    td.block-data {
+      border: none;
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding-left: 3rem;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+article.about div.container {
+  max-width: 60rem !important;
 }
 
 div.card {
-  border: 1px solid #dadada;
-  margin-bottom: 3px;
+  border: 1px solid $border;
+  margin-bottom: 1rem;
 }
 
 div.card-content {

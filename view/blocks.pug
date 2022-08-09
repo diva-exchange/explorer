@@ -1,30 +1,26 @@
 extends layout
 
 block content
-  form(class='my-3' id='search-blocks')
-    div(class='field')
-      div(class='control has-icons-left is-expanded')
-        input(class='input is-medium search' type='text' name='q' placeholder='Filter')
-        span(class='icon is-medium is-left')
-          i(class='icon-search')
+  form(id='search-blocks')
+    div(class='columns is-mobile')
+      div(class='column is-two-thirds')
+        div(class='field')
+          div(class='control has-icons-left is-expanded')
+            input(class='input is-medium search' type='text' name='q' placeholder='Filter')
+            span(class='icon is-medium is-left')
+              i(class='icon-search')
 
-  article(class='blocks')
-
-  div(class='container my-3')
-    div(class='columns is-gapless is-mobile is-vcentered mx-0')
-      div(class='column')
-        h1(class='is-size-3') Blocks:&nbsp;
-          span(id='heightBlockchain' class='height')
       div(class='column has-text-right')
         div(class='field')
-          div(class='control is-expanded')
-            div(class='select')
+          div(class='control')
+            div(class='select is-medium')
               select(name='pagesize')
                 option(selected) 100
                 option 50
                 option 20
 
-    table(class='blocks table is-fullwidth')
+  article(class='article blocks')
+    table(class='table is-fullwidth')
       thead
         tr
           th(class='marker')
@@ -32,13 +28,13 @@ block content
           th Transactions
       tbody
 
-  div(class='container is-size-3')
-    div(class='columns is-mobile paging mx-0')
-      div(class='column has-text-left')
-        a(class='first is-hidden') &lt;&lt;
-      div(class='column has-text-left')
-        a(class='previous is-hidden') &lt;
-      div(class='column has-text-right')
-        a(class='next is-hidden') &gt;
-      div(class='column has-text-right')
-        a(class='last is-hidden') &gt;&gt;
+    div(class='paging')
+      div(class='columns is-mobile is-size-4 is-vcentered')
+        div(class='column has-text-left')
+          a(class='paging first is-hidden') &lt;&lt;
+        div(class='column has-text-left')
+          a(class='paging previous is-hidden') &lt;
+        div(class='column has-text-right')
+          a(class='paging next is-hidden') &gt;
+        div(class='column has-text-right')
+          a(class='paging last is-hidden') &gt;&gt;
