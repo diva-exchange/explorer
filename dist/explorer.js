@@ -18,6 +18,7 @@ class Explorer {
     constructor(config) {
         this.webSocket = {};
         this.height = 0;
+        this.timeoutInit = 5000;
         this.config = config;
         this.app = (0, express_1.default)();
         this.app.set('x-powered-by', false);
@@ -45,8 +46,14 @@ class Explorer {
             server: this.httpServer,
             clientTracking: true,
         });
+        this.webSocketServer.on('connection', () => {
+            this.webSocket.readyState === ws_1.default.OPEN && this.broadcastStatus(true);
+        });
         this.webSocketServer.on('close', () => {
             logger_1.Logger.info('WebSocketServer closing');
+        });
+        this.webSocketServer.on('error', (error) => {
+            logger_1.Logger.trace(`WebSocketServer onError: ${error.toString()}`);
         });
     }
     listen() {
@@ -82,37 +89,73 @@ class Explorer {
     initFeed() {
         this.webSocket = new ws_1.default(this.config.url_feed, {
             followRedirects: false,
+            perMessageDeflate: false,
         });
-        this.webSocket.on('close', () => {
-            this.webSocket = {};
-            setTimeout(() => {
-                this.initFeed();
-            }, 1000);
+        this.webSocket.on('open', () => {
+            this.timeoutInit = 5000;
+            this.broadcastStatus(true);
+            (async () => {
+                try {
+                    this.broadcastBlock(await this.getFromApi(this.config.url_api + '/block/1'));
+                }
+                catch (error) {
+                    logger_1.Logger.warn(`WebSocket.onOpen(), GET request failed: ${this.config.url_api}/block/1 - ${error.toString()}`);
+                    this.height = 0;
+                }
+            })();
         });
         this.webSocket.on('message', (message) => {
-            let block = {};
-            let html = '';
             try {
-                block = JSON.parse(message.toString());
-                this.height = block.height > this.height ? block.height : this.height;
-                html = pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/blocklist.pug'), {
-                    blocks: [
-                        {
-                            height: block.height,
-                            lengthTx: block.tx.length,
-                        },
-                    ],
-                });
+                this.broadcastBlock(JSON.parse(message.toString()));
             }
-            catch (e) {
-                return;
-            }
-            if (html.length) {
-                this.webSocketServer.clients.forEach((ws) => {
-                    ws.send(JSON.stringify({ heightChain: this.height, heightBlock: block.height, html: html }));
-                });
+            catch (error) {
+                logger_1.Logger.warn(`WebSocket.onMessage(): ${error.toString()}`);
             }
         });
+        this.webSocket.on('close', (code, reason) => {
+            this.broadcastStatus(false);
+            this.timeoutInit = Math.floor(this.timeoutInit * 1.5 > 60000 ? 60000 : this.timeoutInit * 1.5);
+            setTimeout(() => {
+                this.initFeed();
+            }, this.timeoutInit);
+            this.webSocket = {};
+            this.height = 0;
+            logger_1.Logger.trace(`WebSocket onClose: ${code} ${reason}`);
+        });
+        this.webSocket.on('error', (error) => {
+            logger_1.Logger.trace(`WebSocket onError: ${error.toString()}`);
+        });
+    }
+    broadcastBlock(block) {
+        try {
+            this.height = block.height > this.height ? block.height : this.height;
+            const html = pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/blocklist.pug'), {
+                blocks: [
+                    {
+                        height: block.height,
+                        lengthTx: block.tx.length,
+                    },
+                ],
+            });
+            this.webSocketServer.clients.forEach((ws) => {
+                ws.readyState === ws_1.default.OPEN &&
+                    ws.send(JSON.stringify({ type: 'block', heightChain: this.height, heightBlock: block.height, html: html }));
+            });
+        }
+        catch (error) {
+            logger_1.Logger.warn(`broadcastBlock(): ${error.toString()}`);
+        }
+    }
+    broadcastStatus(status) {
+        try {
+            this.webSocketServer.clients.forEach((ws) => {
+                ws.readyState === ws_1.default.OPEN &&
+                    ws.send(JSON.stringify({ type: 'status', status: status }));
+            });
+        }
+        catch (error) {
+            logger_1.Logger.warn(`broadcastStatus(): ${error.toString()}`);
+        }
     }
     async routes(req, res, next) {
         const v = this.config.VERSION;
@@ -128,6 +171,9 @@ class Explorer {
             case '/ui/network':
                 res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/network.pug'), { version: v }));
                 break;
+            case '/ui/about':
+                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/about.pug'), { version: v }));
+                break;
             case '/blocks':
                 await this.getBlocks(req, res);
                 break;
@@ -139,6 +185,9 @@ class Explorer {
                 break;
             case '/network':
                 await this.getNetwork(req, res);
+                break;
+            case '/tx':
+                await this.putTx(req, res);
                 break;
             default:
                 next();
@@ -161,7 +210,7 @@ class Explorer {
             })
                 .reverse();
         }
-        catch (e) {
+        catch (error) {
             res.json({});
             return;
         }
@@ -176,19 +225,20 @@ class Explorer {
         });
     }
     async getBlock(req, res) {
-        const id = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 1);
-        const url = this.config.url_api + `/block/${id}`;
+        const height = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 1);
         try {
-            res.json(await this.getFromApi(url));
+            res.json(await this.getFromApi(this.config.url_api + `/block/${height}`));
         }
-        catch (e) {
+        catch (error) {
+            logger_1.Logger.warn(`getBlock(), GET request failed: ${this.config.url_api}/block/${height} - ${error.toString()}`);
             res.json({});
             return;
         }
     }
     async getState(req, res) {
+        const url = this.config.url_api + '/state/search/' + (req.query.q || '').toString();
         try {
-            res.json((await this.getFromApi(this.config.url_api + '/state/search/' + (req.query.q || '').toString()))
+            res.json((await this.getFromApi(url))
                 .sort((a, b) => {
                 return a.key > b.key ? 1 : -1;
             })
@@ -208,14 +258,16 @@ class Explorer {
                 };
             }));
         }
-        catch (e) {
+        catch (error) {
+            logger_1.Logger.warn(`getState(), GET request failed: ${url} - ${error.toString()}`);
             res.json({});
         }
     }
     async getNetwork(req, res) {
+        const filter = (req.query.q || '').toString().toLowerCase();
+        const url = this.config.url_api + '/network';
         try {
-            const filter = (req.query.q || '').toString().toLowerCase();
-            res.json((await this.getFromApi(this.config.url_api + '/network'))
+            res.json((await this.getFromApi(url))
                 .sort((a, b) => (a.publicKey > b.publicKey ? 1 : -1))
                 .map((data) => {
                 const http = data.http.indexOf('.') === -1 ? (0, i2p_sam_1.toB32)(data.http) + '.b32.i2p' : data.http;
@@ -232,23 +284,47 @@ class Explorer {
                     };
             }));
         }
-        catch (e) {
+        catch (error) {
+            logger_1.Logger.warn(`getNetwork(), GET request failed: ${url} - ${error.toString()}`);
+            res.json({});
+        }
+    }
+    async putTx(req, res) {
+        const txData = (req.query.q || '').toString().slice(0, 64);
+        const url = this.config.url_api + '/transaction';
+        try {
+            const aC = [{ seq: 1, command: 'data', ns: 'testnet:explorer:diva:exchange', d: txData }];
+            const result = await this.putToApi(url, aC);
+            return res.json(result);
+        }
+        catch (error) {
+            logger_1.Logger.warn(`putTx(), PUT request failed: ${url} - ${error.toString()}`);
             res.json({});
         }
     }
     async getFromApi(url) {
-        try {
-            return await new Promise((resolve, reject) => {
-                simple_get_1.default.concat({ url: url, timeout: 200 }, (_error, res, data) => {
-                    return _error ? reject(_error) : resolve(JSON.parse(data.toString()));
-                });
+        return new Promise((resolve, reject) => {
+            simple_get_1.default.concat({
+                url: url,
+                timeout: 1000,
+                json: true,
+            }, (_error, res, data) => {
+                _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
             });
-        }
-        catch (error) {
-            logger_1.Logger.warn(`GET request failed: ${url}`);
-            logger_1.Logger.trace(error.toString());
-        }
-        return {};
+        });
+    }
+    async putToApi(url, arrayCommand) {
+        return new Promise((resolve, reject) => {
+            simple_get_1.default.concat({
+                method: 'PUT',
+                url: url,
+                timeout: 1000,
+                body: arrayCommand,
+                json: true,
+            }, (_error, res, data) => {
+                _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
+            });
+        });
     }
     error(err, req, res, next) {
         res.status(err.status || 500);
