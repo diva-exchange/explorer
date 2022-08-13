@@ -55,15 +55,18 @@ class Ui {
   static page = 1;
 
   static timeoutNotification = null;
+  static timeoutRefresh = null;
 
   /**
    * @public
    */
   static make () {
+    const p = window.location.pathname.replace(/\/+$/, '');
+
     // menu
     u('a.navbar-item').removeClass('is-active');
-    u('a.navbar-item[href="' + window.location.pathname + '"]').length ?
-      u('a.navbar-item[href="' + window.location.pathname + '"]').addClass('is-active') :
+    u('a.navbar-item[href="' + p + '"]').length ?
+      u('a.navbar-item[href="' + p + '"]').addClass('is-active') :
       u(u('.navbar-menu a.navbar-item').first()).addClass('is-active');
 
     // mobile menu
@@ -75,7 +78,7 @@ class Ui {
 
     Ui._initWebsocket();
 
-    switch (window.location.pathname) {
+    switch (p) {
       case '/':
       case '/ui/blocks':
         Ui._fetchBlocks(1);
@@ -113,7 +116,7 @@ class Ui {
         Ui.height = response.height || 0;
         Ui.page = response.page || 1;
 
-        u('article.blocks table tbody').html(response.html);
+        u('article.blocks div.container.body').html(response.html);
         Ui._attachEvents();
       });
   }
@@ -229,17 +232,15 @@ class Ui {
     Ui._updateUIStatus('# ' + Ui.height);
 
     if (Ui._getSearchString() === '' && Ui.page === 1) {
-      if (u('article.blocks table tbody tr#b' + Number(block.heightBlock)).length) {
-        u('article.blocks table tbody tr#bd' + Number(block.heightBlock)).remove();
-        u('article.blocks table tbody tr#b' + Number(block.heightBlock)).replace(block.html);
+      if (u('article.blocks div.body div#b' + Number(block.heightBlock)).length) {
+        u('article.blocks div.body div#b' + Number(block.heightBlock)).replace(block.html);
       } else {
-        u('article.blocks table tbody').prepend(block.html);
+        u('article.blocks div.body').prepend(block.html);
       }
 
       // maintain page size, remove last two rows
       if (block.heightBlock > u('select[name=pagesize]').first().value) {
-        u('article.blocks table tbody tr').last().remove();
-        u('article.blocks table tbody tr').last().remove();
+        u('article.blocks div.body div.columns.wrap').last().remove();
       }
     }
 
@@ -279,6 +280,11 @@ class Ui {
    * @private
    */
   static _attachEvents () {
+    clearTimeout(Ui.timeoutRefresh);
+    Ui.timeoutRefresh = setTimeout(() => {
+      window.location.reload();
+    }, 1800000); // every thirty minutes, if unused
+
     // pages
     Ui.pages = Ui.height > 0 ? Math.ceil(Ui.height / u('select[name=pagesize]').first().value) : 1;
 
@@ -337,23 +343,17 @@ class Ui {
     });
 
     // load block data
-    u('article.blocks table td span, article.blocks table td a').off('click').handle('click', async (e) => {
+    u('article.blocks div.block-height').off('click').handle('click', async (e) => {
+      u(e.currentTarget).toggleClass('open');
       const idBlock = u(e.currentTarget).data('id');
-
-      const d = u('td.block-data[data-id="' + idBlock + '"]');
-      let response = {};
-      if (d.text() === '') {
-        response = await (await fetch(`/block?q=${idBlock}`)).json();
+      const d = u('div#bc' + idBlock + ' code');
+      if (!d.text().length) {
+        const response = await (await fetch(`/block?q=${idBlock}`)).json();
         if (response) {
           d.text(JSON.stringify(response, null, 2));
         }
       }
-
-      if (d.text() !== '') {
-        d.toggleClass('is-hidden');
-        u('td.marker[data-id="' + idBlock + '"] span i').toggleClass('icon-angle-down');
-        u('td.marker[data-id="' + idBlock + '"] span i').toggleClass('icon-angle-right');
-      }
+      u('div#bc' + idBlock).toggleClass('is-hidden');
     });
   }
 

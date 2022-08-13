@@ -40,16 +40,68 @@ html.error {
   }
 }
 
-/* reset */
-body {
-  padding: 1.5rem 0.5rem;
-}
 section.section {
-  margin: 0;
+  margin: 1rem 0 2rem 0;
   padding: 0;
 }
-article.article {
-  margin-top: 2rem;
+
+/* typography / icons */
+@font-face {
+  font-family: 'diva-exchange-explorer';
+  src:
+    url('../webfonts/diva-exchange-explorer.ttf') format('truetype'),
+    url('../webfonts/diva-exchange-explorer.woff') format('woff'),
+    url('../webfonts/diva-exchange-explorer.svg#diva-exchange-explorer') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+.icon-font-family {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'diva-exchange-explorer' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+span.icon i {
+  @extend .icon-font-family;
+}
+
+.icon-check:before {
+  content: "\f00c";
+}
+.icon-times:before {
+  content: "\f00d";
+}
+.icon-users:before {
+  content: "\f0c0";
+}
+.icon-angle-right:before {
+  content: "\f105";
+}
+.icon-angle-down:before {
+  content: "\f107";
+}
+.icon-stream:before {
+  content: "\f550";
+}
+.icon-layer-group:before {
+  content: "\f5fd";
+}
+.icon-network-wired:before {
+  content: "\f6ff";
+}
+.icon-search:before {
+  content: "\f002";
 }
 
 /* animations */
@@ -118,40 +170,92 @@ nav.navbar.top, .navbar-menu {
 }
 
 article.blocks {
-  table {
-    thead th {
+  div.columns {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  div.column {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  div.columns.wrap div.column {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  div.container.head {
+    div.column {
       background-color: $dark-blue;
       border: none !important;
+      font-weight: bold;
     }
+  }
 
-    tbody tr td {
-      border: none;
-    }
-
-    tbody tr:nth-child(2n) {
-      border-bottom: 1px solid $dark-blue;
-    }
-
-    th.marker {
-      width: 24px;
-    }
-
-    td.marker {
+  div.container.body {
+    div.column.block-height span {
+      color: $link;
       cursor: pointer;
-      padding: 0.5em 0;
+    }
+    div.column.block-height span a {
+      padding-left: 0.25rem;
+    }
+    div.column.block-height span:before {
+      @extend .icon-font-family;
+      @extend .icon-angle-right;
+    }
+    div.column.block-height.open span:before {
+      @extend .icon-font-family;
+      @extend .icon-angle-down;
     }
 
-    td.block-data {
-      width: min-content;
-      word-break: break-all;
+    div.dna {
+      display: inline-block;
+      height: 0.75rem;
     }
 
-    td.block-data {
-      border: none;
-      font-family: monospace;
-      font-size: 0.75rem;
-      padding-left: 3rem;
+    .dna-addPeer {
+      background-color: #ff71ce;
+    }
+    .dna-modifyStake {
+      background-color: #01cdfe;
+    }
+    .dna-removePeer {
+      background-color: #05ffa1;
+    }
+    .dna-data {
+      background-color: #b967ff;
+    }
+    .dna-decision {
+      background-color: #fffb96;
+    }
+
+    div.column.block-data {
+      padding: 0 0 0.75rem 0.75rem;
+
+      div.summary {
+        div.dna {
+          width: 0.75rem;
+          position: relative;
+          top: 1px;
+        }
+        span {
+          margin-left: 0.5rem;
+        }
+      }
+    }
+
+    code {
+      color: $white-ter;
       white-space: pre-wrap;
+      word-break: break-all;
+      max-width: 100%;
+      display: block;
     }
   }
 }

@@ -128,14 +128,8 @@ class Explorer {
     }
     broadcastBlock(block) {
         try {
-            this.height = block.height > this.height ? block.height : this.height;
             const html = pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/blocklist.pug'), {
-                blocks: [
-                    {
-                        height: block.height,
-                        lengthTx: block.tx.length,
-                    },
-                ],
+                blocks: this.processBlocks([block]),
             });
             this.webSocketServer.clients.forEach((ws) => {
                 ws.readyState === ws_1.default.OPEN &&
@@ -160,16 +154,17 @@ class Explorer {
     async routes(req, res, next) {
         const v = this.config.VERSION;
         const _p = req.path.replace(/\/+$/, '');
+        const q = req.query.q || '';
         switch (_p) {
             case '':
             case '/ui/blocks':
-                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/blocks.pug'), { version: v }));
+                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/blocks.pug'), { q: q }));
                 break;
             case '/ui/state':
-                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/state.pug'), { version: v }));
+                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/state.pug'), {}));
                 break;
             case '/ui/network':
-                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/network.pug'), { version: v }));
+                res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/network.pug'), {}));
                 break;
             case '/ui/about':
                 res.end(pug_1.default.renderFile(path_1.default.join(this.config.path_app, 'view/about.pug'), { version: v }));
@@ -200,15 +195,7 @@ class Explorer {
         const url = this.config.url_api + (q.length ? `/blocks/search/${q}` : `/blocks/page/${page}/${pagesize}`);
         let arrayBlocks = [];
         try {
-            arrayBlocks = (await this.getFromApi(url))
-                .map((b) => {
-                this.height = b.height > this.height ? b.height : this.height;
-                return {
-                    height: b.height,
-                    lengthTx: b.tx.length,
-                };
-            })
-                .reverse();
+            arrayBlocks = this.processBlocks(await this.getFromApi(url));
         }
         catch (error) {
             res.json({});
@@ -223,6 +210,29 @@ class Explorer {
             height: this.height,
             html: html,
         });
+    }
+    processBlocks(arrayBlocks) {
+        return arrayBlocks.map((b) => {
+            this.height = b.height > this.height ? b.height : this.height;
+            let dnaCommands = new Map();
+            let lengthCommands = 0;
+            Array.from(b.tx).forEach((tx) => {
+                [...tx.commands].forEach((c) => {
+                    const n = dnaCommands.get(c.command) || 0;
+                    dnaCommands.set(c.command, n + 1);
+                    lengthCommands++;
+                });
+            });
+            return {
+                height: b.height,
+                lengthTx: b.tx.length,
+                dnaCmds: [...dnaCommands].sort((a, b) => a[0] >= b[0] ? 1 : -1),
+                lengthCmds: lengthCommands,
+                weightTotal: JSON.stringify(b).length,
+                weightTx: JSON.stringify(b.tx).length,
+            };
+        })
+            .reverse();
     }
     async getBlock(req, res) {
         const height = Math.floor(Number(req.query.q || 0) >= 1 ? Number(req.query.q) : 1);

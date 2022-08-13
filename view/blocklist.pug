@@ -1,11 +1,26 @@
 each objBlock in blocks
-  tr(id='b' + Number(objBlock.height))
-    td(class='marker' data-id=objBlock.height)
-      span(data-id=objBlock.height class='icon')
-        i(class='icon-angle-right')
-    td(class='block-height')
-      a(data-id=objBlock.height)= Number(objBlock.height)
-    td(class='block-transactions')= objBlock.lengthTx
-  tr(id='bd' + Number(objBlock.height))
-    td(data-id=objBlock.height class='block-data is-hidden' colspan='3')
+  div(id='b' + Number(objBlock.height) class='columns wrap is-mobile')
+    div(class='column is-full')
+      div(class='columns is-mobile')
+        div(class='column block-height is-2' data-id=objBlock.height)
+          span
+            a= Number(objBlock.height)
+        div(class='column block-dna is-4')
+          each a in objBlock.dnaCmds
+            div(class='dna dna-' + a[0] style='width: ' + Math.round(a[1]*100/objBlock.lengthCmds) + '%')
+        div(class='column is-2')= objBlock.lengthTx
+        div(class='column is-2')= objBlock.lengthCmds
+        div(class='column is-2')= Math.floor(objBlock.weightTx * 100 / objBlock.weightTotal) + '%'
 
+      div(class='columns is-mobile')
+        div(class='column is-2')
+        div(class='column block-data is-9')
+          div(class='columns summary')
+            each a in objBlock.dnaCmds
+              div(class='column is-narrow py-0')
+                div(class='dna dna-' + a[0])
+                span(class='is-size-7')= a[0] + ': ' + Math.round(a[1]*100/objBlock.lengthCmds) + '%'
+
+      div(id='bc' + Number(objBlock.height) class='columns is-mobile is-hidden')
+        div(class='column is-full')
+          code(class='is-size-7')

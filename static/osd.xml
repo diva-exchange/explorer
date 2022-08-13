@@ -1,0 +1,7 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>DIVA</ShortName>
+  <Description>Search for blocks on divachain</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="32" height="32">https://testnet.diva.exchange/media/diva-exchange-logo-32x32.png</Image>
+  <Url type="text/html" method="get" template="https://testnet.diva.exchange/ui/blocks/?q={searchTerms}"/>
+</OpenSearchDescription>

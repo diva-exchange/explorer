@@ -181,14 +181,8 @@ export class Explorer {
 
   private broadcastBlock(block: any) {
     try {
-      this.height = block.height > this.height ? block.height : this.height;
       const html = pug.renderFile(path.join(this.config.path_app, 'view/blocklist.pug'), {
-        blocks: [
-          {
-            height: block.height,
-            lengthTx: block.tx.length,
-          },
-        ],
+        blocks: this.processBlocks([block]),
       });
       this.webSocketServer.clients.forEach((ws) => {
         ws.readyState === WebSocket.OPEN &&
@@ -213,16 +207,17 @@ export class Explorer {
   private async routes(req: Request, res: Response, next: NextFunction) {
     const v = this.config.VERSION;
     const _p = req.path.replace(/\/+$/, '');
+    const q = req.query.q || '';
     switch (_p) {
       case '':
       case '/ui/blocks':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug'), { version: v }));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug'), { q: q }));
         break;
       case '/ui/state':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug'), { version: v }));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug'), { }));
         break;
       case '/ui/network':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug'), { version: v }));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug'), {  }));
         break;
       case '/ui/about':
         res.end(pug.renderFile(path.join(this.config.path_app, 'view/about.pug'), { version: v }));
@@ -255,15 +250,7 @@ export class Explorer {
 
     let arrayBlocks: Array<any> = [];
     try {
-      arrayBlocks = (await this.getFromApi(url))
-        .map((b: any) => {
-          this.height = b.height > this.height ? b.height : this.height;
-          return {
-            height: b.height,
-            lengthTx: b.tx.length,
-          };
-        })
-        .reverse();
+      arrayBlocks = this.processBlocks(await this.getFromApi(url));
     } catch (error: any) {
       res.json({});
       return;
@@ -278,6 +265,30 @@ export class Explorer {
       height: this.height,
       html: html,
     });
+  }
+
+  private processBlocks(arrayBlocks: Array<any>) {
+    return arrayBlocks.map((b: any) => {
+      this.height = b.height > this.height ? b.height : this.height;
+      let dnaCommands: Map<string, number> = new Map();
+      let lengthCommands: number = 0;
+      Array.from(b.tx).forEach((tx: any) => {
+        [...tx.commands].forEach((c) => {
+          const n = dnaCommands.get(c.command) || 0;
+          dnaCommands.set(c.command, n + 1);
+          lengthCommands++;
+        });
+      });
+      return {
+        height: b.height,
+        lengthTx: b.tx.length,
+        dnaCmds: [...dnaCommands].sort((a, b) => a[0] >= b[0] ? 1 : -1),
+        lengthCmds: lengthCommands,
+        weightTotal: JSON.stringify(b).length,
+        weightTx: JSON.stringify(b.tx).length,
+      };
+    })
+    .reverse();
   }
 
   private async getBlock(req: Request, res: Response) {

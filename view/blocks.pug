@@ -1,16 +1,16 @@
 extends layout
 
 block content
-  form(id='search-blocks')
+  form(id='search-blocks' class='mb-4')
     div(class='columns is-mobile')
-      div(class='column is-two-thirds')
+      div(class='column is-expanded')
         div(class='field')
-          div(class='control has-icons-left is-expanded')
-            input(class='input is-medium search' type='text' name='q' placeholder='Filter')
+          div(class='control has-icons-left')
+            input(class='input is-medium search' type='text' name='q' placeholder='Filter' value=q)
             span(class='icon is-medium is-left')
               i(class='icon-search')
 
-      div(class='column has-text-right')
+      div(class='column is-narrow')
         div(class='field')
           div(class='control')
             div(class='select is-medium')
@@ -20,13 +20,15 @@ block content
                 option 20
 
   article(class='article blocks')
-    table(class='table is-fullwidth')
-      thead
-        tr
-          th(class='marker')
-          th Block
-          th Transactions
-      tbody
+    div(class='container head')
+      div(class='columns is-mobile')
+        div(class='column is-2' title='Block height') #
+        div(class='column block-dna is-4' title='Block Structure') DNA
+        div(class='column is-2' title='# of Transactions') Txs
+        div(class='column is-2' title='# of Commmands') Cmds
+        div(class='column is-2' title='Data-to-total-weight efficiency') Ratio
+
+    div(class='container body')
 
     div(class='paging')
       div(class='columns is-mobile is-size-4 is-vcentered')
