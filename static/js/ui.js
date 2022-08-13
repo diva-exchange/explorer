@@ -79,6 +79,7 @@ class Ui {
     Ui._initWebsocket();
 
     switch (p) {
+      case '':
       case '/':
       case '/ui/blocks':
         Ui._fetchBlocks(1);
