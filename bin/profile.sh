@@ -34,4 +34,4 @@ source "${PROJECT_PATH}/bin/profile/${NAME_PROFILE}"
 USER_NAME=${USER_NAME:-}
 USER_EMAIL=${USER_EMAIL:-}
 
-echo "Loaded - \"${USER_NAME} <${USER_EMAIL}>\""
+echo "Loaded: \"${USER_NAME} <${USER_EMAIL}>\""
