@@ -38,4 +38,4 @@ Awesome, thank you!
 
 ## License
 
-[AGPLv3](LICENSE)
+[AGPLv3](https://github.com/diva-exchange/explorer/blob/main/LICENSE)
