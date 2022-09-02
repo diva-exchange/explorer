@@ -28,7 +28,7 @@ if [[ -f "${PROJECT_PATH}/deploy/profile/.loaded" ]]; then
 fi
 
 NAME_PROFILE_SRC=mirror-${1:-}
-NAME_PROFILE_DEST=mirror-${1:-}
+NAME_PROFILE_DEST=mirror-${2:-}
 
 if [[ ! -f "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_SRC}" ]]; then
     echo "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_SRC} not found"
@@ -46,7 +46,7 @@ git pull
 
 source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_DEST}"
 
-git push
+git push --set-upstream origin main
 
 echo "Mirrored: \"${NAME_PROFILE_SRC} -> ${NAME_PROFILE_DEST}\""
 
