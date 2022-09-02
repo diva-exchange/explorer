@@ -42,22 +42,23 @@ ${PROJECT_PATH}/bin/build.sh
 VERSION=v$(<${PROJECT_PATH}/static/version)
 echo ${VERSION}
 
-${PROJECT_PATH}/bin/create-docker-image.sh
+TAG=${VERSION} ${PROJECT_PATH}/bin/create-docker-image.sh
+TAG=current ${PROJECT_PATH}/bin/create-docker-image.sh
 
 ## Committing release stuff
 git commit -a -m "build ${VERSION}"
-git push origin
+git push --set-upstream origin develop
 
-#git checkout main
-#git pull
-#git merge develop
+## Merging into main
+git checkout main
+git pull
+git merge develop
 
 ## TAG the release
-#git tag -a ${VERSION} -m "Signed Version ${VERSION}"
+git tag -a ${VERSION} -m "Signed Version ${VERSION}"
 
 ## Push the release
-#git push origin ${VERSION}
-
+git push --set-upstream origin ${VERSION}
 
 echo "Released: ${VERSION}"
 

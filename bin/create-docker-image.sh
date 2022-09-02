@@ -36,3 +36,4 @@ fi
 TAG=${TAG:-latest}
 info "Building docker image divax/explorer:${TAG}..."
 sudo docker build --force-rm --pull --no-cache -f ${PROJECT_PATH}Dockerfile -t divax/explorer:${TAG} .
+sudo docker push divax/explorer:${TAG}

@@ -46,7 +46,7 @@ git pull
 
 source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_DEST}"
 
-git push origin
+git push --set-upstream origin main
 
 echo "Mirrored: \"${NAME_PROFILE_SRC} -> ${NAME_PROFILE_DEST}\""
 
