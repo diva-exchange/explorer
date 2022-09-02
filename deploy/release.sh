@@ -22,20 +22,45 @@ PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd ${PROJECT_PATH}
 PROJECT_PATH=`pwd`
 
-NAME_PROFILE=${1:-}
+LOADED=
+if [[ -f "${PROJECT_PATH}/deploy/profile/.loaded" ]]; then
+  LOADED=$(<${PROJECT_PATH}/deploy/profile/.loaded)
+fi
 
-if [[ ! -f "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE}" ]]; then
-    echo "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE} not found"
+NAME_RELEASE_PROFILE=${1:-release}
+
+if [[ ! -f "${PROJECT_PATH}/deploy/profile/${NAME_RELEASE_PROFILE}" ]]; then
+    echo "${PROJECT_PATH}/deploy/profile/${NAME_RELEASE_PROFILE} for release not found"
     exit 1
 fi
 
-source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE}"
+source "${PROJECT_PATH}/deploy/profile/${NAME_RELEASE_PROFILE}"
 
 git checkout develop
-git pull
+${PROJECT_PATH}/bin/build.sh
 
-USER_NAME=${USER_NAME:-}
-USER_EMAIL=${USER_EMAIL:-}
-echo "Loaded: \"${USER_NAME} <${USER_EMAIL}>\""
+VERSION=v$(<${PROJECT_PATH}/static/version)
+echo ${VERSION}
 
-echo ${NAME_PROFILE} >${PROJECT_PATH}/deploy/profile/.loaded
+${PROJECT_PATH}/bin/create-docker-image.sh
+
+## Committing release stuff
+git commit -a -m "build ${VERSION}"
+git push origin
+
+#git checkout main
+#git pull
+#git merge develop
+
+## TAG the release
+#git tag -a ${VERSION} -m "Signed Version ${VERSION}"
+
+## Push the release
+#git push origin ${VERSION}
+
+
+echo "Released: ${VERSION}"
+
+if [[ ! -z "${LOADED}" ]]; then
+  ${PROJECT_PATH}/deploy/load-git-config.sh ${LOADED}
+fi

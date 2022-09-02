@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2021-2022 diva.exchange
+# Copyright (C) 2022 diva.exchange
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ if [[ ! -f "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_SRC}" ]]; then
 fi
 if [[ ! -f "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_DEST}" ]]; then
     echo "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_DEST} not found"
-    exit 1
+    exit 2
 fi
 
 source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_SRC}"
@@ -46,7 +46,7 @@ git pull
 
 source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE_DEST}"
 
-git push --set-upstream origin main
+git push origin
 
 echo "Mirrored: \"${NAME_PROFILE_SRC} -> ${NAME_PROFILE_DEST}\""
 
