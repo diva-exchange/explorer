@@ -24,14 +24,18 @@ PROJECT_PATH=`pwd`
 
 NAME_PROFILE=${1:-}
 
-if [[ ! -f "${PROJECT_PATH}/bin/profile/${NAME_PROFILE}" ]]; then
-    echo "${PROJECT_PATH}/bin/profile/${NAME_PROFILE} not found"
+if [[ ! -f "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE}" ]]; then
+    echo "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE} not found"
     exit 1
 fi
 
-source "${PROJECT_PATH}/bin/profile/${NAME_PROFILE}"
+source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE}"
+
+git checkout develop
+git pull
 
 USER_NAME=${USER_NAME:-}
 USER_EMAIL=${USER_EMAIL:-}
-
 echo "Loaded: \"${USER_NAME} <${USER_EMAIL}>\""
+
+echo ${NAME_PROFILE} >${PROJECT_PATH}/deploy/profile/.loaded

@@ -1,0 +1,8 @@
+
+USER_NAME="John Doe"
+USER_EMAIL="john@example.com"
+COMMITTER_EMAIL=${USER_EMAIL}
+
+git config user.name "${USER_NAME}"
+git config user.email "${USER_EMAIL}"
+git config committer.email "${COMMITTER_EMAIL}"
