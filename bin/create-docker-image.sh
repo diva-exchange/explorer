@@ -33,7 +33,11 @@ if ! command_exists docker; then
   exit 1
 fi
 
-TAG=${TAG:-latest}
-info "Building docker image divax/explorer:${TAG}..."
+TAG=$(<${PROJECT_PATH}/static/version)
+info "Building and publishing docker image divax/explorer:${TAG}..."
 sudo docker build --force-rm --pull --no-cache -f ${PROJECT_PATH}Dockerfile -t divax/explorer:${TAG} .
+sudo docker push divax/explorer:${TAG}
+
+TAG=current
+info "Publishing docker image divax/explorer:${TAG}..."
 sudo docker push divax/explorer:${TAG}
