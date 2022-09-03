@@ -19,6 +19,14 @@ Default: http://localhost:17468
 ### URL_FEED
 Default: ws://localhost:17469
 
+## Contributing
+Contributions are very welcome. This is the general workflow:
+1. Star and fork the project on https://github.com/diva-exchange/explorer/
+2. Pull the forked project to your local developer environment
+3. Make your changes, commit and push them
+4. Create a new pull request
+
+If you have questions, please just contact us and we will help.
 
 ## Contact the Developers
 
