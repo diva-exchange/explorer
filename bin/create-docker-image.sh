@@ -40,4 +40,5 @@ sudo docker push divax/explorer:${TAG}
 
 TAG=current
 info "Publishing docker image divax/explorer:${TAG}..."
+sudo docker build --force-rm --pull --no-cache -f ${PROJECT_PATH}Dockerfile -t divax/explorer:${TAG} .
 sudo docker push divax/explorer:${TAG}
