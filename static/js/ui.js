@@ -200,19 +200,23 @@ class Ui {
 
     // Listen for data
     Ui.websocket.addEventListener('message', async (event) => {
+      let obj;
       try {
-        const obj = JSON.parse(event.data);
-        switch (obj.type) {
-          case 'block':
-            Ui._msgBlock(obj);
-            break;
-          case 'status':
-            Ui._msgStatus(obj);
-            break;
-          default:
-            return;
-        }
-      } catch (error) {}
+        obj = JSON.parse(event.data);
+      } catch (error) {
+        return;
+      }
+
+      switch (obj.type) {
+        case 'block':
+          Ui._msgBlock(obj);
+          break;
+        case 'status':
+          Ui._msgStatus(obj);
+          break;
+        default:
+          return;
+      }
     });
   }
 
@@ -220,7 +224,7 @@ class Ui {
    * @private
    */
   static _msgBlock (block) {
-    if (!Object(block).hasOwnProperty('heightChain')) {
+    if (!block || !block.heightChain) {
       return;
     }
 
@@ -252,11 +256,7 @@ class Ui {
    * @private
    */
   static _msgStatus (status) {
-    if (!Object(status).hasOwnProperty('status')) {
-      return;
-    }
-
-    if (status.status) {
+    if (status && status.status) {
       u('#status-chain').addClass('online');
       u('#status-chain i').removeClass('icon-times').addClass('icon-check');
     } else {
