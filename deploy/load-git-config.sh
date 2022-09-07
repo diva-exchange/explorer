@@ -31,8 +31,9 @@ fi
 
 source "${PROJECT_PATH}/deploy/profile/${NAME_PROFILE}"
 
+git fetch --all
 git checkout develop
-git pull
+git merge upstream/develop
 
 USER_NAME=${USER_NAME:-}
 USER_EMAIL=${USER_EMAIL:-}
