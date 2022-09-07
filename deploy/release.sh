@@ -57,6 +57,16 @@ git tag -s -m "Signed Version ${VERSION}" ${VERSION}
 ## Push the release
 git push --follow-tags --set-upstream origin main
 
+# Publish the package on npm
+npm publish
+
+# Create and push docker images
+${PROJECT_PATH}/bin/create-docker-image.sh
+TAG=$(<${PROJECT_PATH}/static/version)
+sudo docker push divax/explorer:${TAG}
+TAG=current
+sudo docker push divax/explorer:${TAG}
+
 echo "Released: ${VERSION}"
 
 if [[ ! -z "${LOADED}" ]]; then

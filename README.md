@@ -28,6 +28,13 @@ Contributions are very welcome. This is the general workflow:
 
 If you have questions, please just contact us and we will help.
 
+## Deployment
+
+_**Remark:**_ credentials (like username and password, ssh keys or tokens) are needed to deploy packages. The helper scripts are created to support automated deployment but do not contain any credentials.
+
+* Docker: to create docker images, use `bin/create-docker-image.sh`.
+* Release packages: use `bin/release.sh` to tag the version and push it to the main branch. Additionally create images and packages and publish them to repositories. 
+
 ## Contact the Developers
 
 On [DIVA.EXCHANGE](https://www.diva.exchange) you'll find various options to get in touch with the team.
