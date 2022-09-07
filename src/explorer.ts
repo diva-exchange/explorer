@@ -86,14 +86,11 @@ export class Explorer {
       clientTracking: true,
     });
     this.webSocketServer.on('connection', () => {
-       // Backend status
-       this.webSocket.readyState === WebSocket.OPEN && this.broadcastStatus(true);
+      // Backend status
+      this.webSocket.readyState === WebSocket.OPEN && this.broadcastStatus(true);
     });
     this.webSocketServer.on('close', () => {
       Logger.info('WebSocketServer closing');
-    });
-    this.webSocketServer.on('error', (error: Error) => {
-      Logger.trace(`WebSocketServer onError: ${error.toString()}`);
     });
   }
 
@@ -173,10 +170,6 @@ export class Explorer {
 
       Logger.trace(`WebSocket onClose: ${code} ${reason}`);
     });
-
-    this.webSocket.on('error', (error: Error) => {
-      Logger.trace(`WebSocket onError: ${error.toString()}`);
-    });
   }
 
   private broadcastBlock(block: any) {
@@ -196,8 +189,7 @@ export class Explorer {
   private broadcastStatus(status: any) {
     try {
       this.webSocketServer.clients.forEach((ws) => {
-        ws.readyState === WebSocket.OPEN &&
-          ws.send(JSON.stringify({ type: 'status', status: status }));
+        ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify({ type: 'status', status: status }));
       });
     } catch (error: any) {
       Logger.warn(`broadcastStatus(): ${error.toString()}`);
@@ -214,10 +206,10 @@ export class Explorer {
         res.end(pug.renderFile(path.join(this.config.path_app, 'view/blocks.pug'), { q: q }));
         break;
       case '/ui/state':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug'), { }));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/state.pug'), {}));
         break;
       case '/ui/network':
-        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug'), {  }));
+        res.end(pug.renderFile(path.join(this.config.path_app, 'view/network.pug'), {}));
         break;
       case '/ui/about':
         res.end(pug.renderFile(path.join(this.config.path_app, 'view/about.pug'), { version: v }));
@@ -268,27 +260,28 @@ export class Explorer {
   }
 
   private processBlocks(arrayBlocks: Array<any>) {
-    return arrayBlocks.map((b: any) => {
-      this.height = b.height > this.height ? b.height : this.height;
-      let dnaCommands: Map<string, number> = new Map();
-      let lengthCommands: number = 0;
-      Array.from(b.tx).forEach((tx: any) => {
-        [...tx.commands].forEach((c) => {
-          const n = dnaCommands.get(c.command) || 0;
-          dnaCommands.set(c.command, n + 1);
-          lengthCommands++;
+    return arrayBlocks
+      .map((b: any) => {
+        this.height = b.height > this.height ? b.height : this.height;
+        const dnaCommands: Map<string, number> = new Map();
+        let lengthCommands: number = 0;
+        Array.from(b.tx).forEach((tx: any) => {
+          [...tx.commands].forEach((c) => {
+            const n = dnaCommands.get(c.command) || 0;
+            dnaCommands.set(c.command, n + 1);
+            lengthCommands++;
+          });
         });
-      });
-      return {
-        height: b.height,
-        lengthTx: b.tx.length,
-        dnaCmds: [...dnaCommands].sort((a, b) => a[0] >= b[0] ? 1 : -1),
-        lengthCmds: lengthCommands,
-        weightTotal: JSON.stringify(b).length,
-        weightTx: JSON.stringify(b.tx).length,
-      };
-    })
-    .reverse();
+        return {
+          height: b.height,
+          lengthTx: b.tx.length,
+          dnaCmds: [...dnaCommands].sort((a, b) => (a[0] >= b[0] ? 1 : -1)),
+          lengthCmds: lengthCommands,
+          weightTotal: JSON.stringify(b).length,
+          weightTx: JSON.stringify(b.tx).length,
+        };
+      })
+      .reverse();
   }
 
   private async getBlock(req: Request, res: Response) {
@@ -363,7 +356,7 @@ export class Explorer {
     const txData = (req.query.q || '').toString().slice(0, 64);
     const url = this.config.url_api + '/transaction';
     try {
-      const aC = [ { seq: 1, command: 'data', ns: 'testnet:explorer:diva:exchange', d: txData }];
+      const aC = [{ seq: 1, command: 'data', ns: 'testnet:explorer:diva:exchange', d: txData }];
       const result = await this.putToApi(url, aC);
       return res.json(result);
     } catch (error: any) {
@@ -374,27 +367,33 @@ export class Explorer {
 
   private async getFromApi(url: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      get.concat({
-        url: url,
-        timeout: 1000,
-        json: true,
-      }, (_error: Error, res: Response, data: Buffer) => {
-        _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
-      });
+      get.concat(
+        {
+          url: url,
+          timeout: 1000,
+          json: true,
+        },
+        (_error: Error, res: Response, data: Buffer) => {
+          _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
+        }
+      );
     });
   }
 
   private async putToApi(url: string, arrayCommand: Array<any>): Promise<any> {
     return new Promise((resolve, reject) => {
-      get.concat({
-        method: 'PUT',
-        url: url,
-        timeout: 1000,
-        body: arrayCommand,
-        json: true,
-      }, (_error: Error, res: Response, data: Buffer) => {
-        _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
-      });
+      get.concat(
+        {
+          method: 'PUT',
+          url: url,
+          timeout: 1000,
+          body: arrayCommand,
+          json: true,
+        },
+        (_error: Error, res: Response, data: Buffer) => {
+          _error || res.statusCode !== 200 ? reject(_error || res.statusCode) : resolve(data);
+        }
+      );
     });
   }
 
