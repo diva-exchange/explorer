@@ -19,14 +19,14 @@ Default: http://localhost:17468
 ### URL_FEED
 Default: ws://localhost:17469
 
-## Contributing
+## Contributions
 Contributions are very welcome. This is the general workflow:
-1. Star and fork the project on https://github.com/diva-exchange/explorer/
+1. Fork the project on https://github.com/diva-exchange/explorer/
 2. Pull the forked project to your local developer environment
 3. Make your changes, commit and push them
 4. Create a new pull request
 
-If you have questions, please just contact us and we will help.
+If you have questions, please just contact us (see below).
 
 ## Deployment
 
@@ -45,9 +45,9 @@ Talk to us via Telegram [https://t.me/diva_exchange_chat_de]() (English or Germa
 
 Your donation goes entirely to the project. Your donation makes the development of DIVA.EXCHANGE faster.
 
-XMR: 42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx
+XMR: [42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx](monero:42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx)
 
-BTC: 3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs
+BTC: [3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs](bitcoin:3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs)
 
 Awesome, thank you!
 
