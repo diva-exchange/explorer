@@ -34,9 +34,9 @@ if ! command_exists docker; then
 fi
 
 TAG=$(<${PROJECT_PATH}/static/version)
-info "Building and publishing docker image divax/explorer:${TAG}..."
+info "Building docker image divax/explorer:${TAG}..."
 sudo docker build --force-rm --pull --no-cache -f ${PROJECT_PATH}Dockerfile -t divax/explorer:${TAG} .
 
 TAG=current
-info "Publishing docker image divax/explorer:${TAG}..."
+info "Building docker image divax/explorer:${TAG}..."
 sudo docker build --force-rm --pull --no-cache -f ${PROJECT_PATH}Dockerfile -t divax/explorer:${TAG} .
