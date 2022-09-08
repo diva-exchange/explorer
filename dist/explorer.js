@@ -38,6 +38,7 @@ class Explorer {
         this.httpServer = http_1.default.createServer(this.app);
         this.httpServer.on('listening', () => {
             logger_1.Logger.info(`HttpServer listening on ${this.config.http_ip}:${this.config.http_port}`);
+            logger_1.Logger.info(`WebSocketServer ready on ${this.config.http_ip}:${this.config.http_port}`);
         });
         this.httpServer.on('close', () => {
             logger_1.Logger.info(`HttpServer closing on ${this.config.http_ip}:${this.config.http_port}`);
@@ -53,7 +54,8 @@ class Explorer {
             logger_1.Logger.info('WebSocketServer closing');
         });
         this.webSocketServer.on('error', (error) => {
-            logger_1.Logger.trace(`WebSocketServer onError: ${error.toString()}`);
+            logger_1.Logger.warn('WebSocketServer error');
+            logger_1.Logger.trace(error.toString());
         });
     }
     listen() {
@@ -92,6 +94,7 @@ class Explorer {
             perMessageDeflate: false,
         });
         this.webSocket.on('open', () => {
+            logger_1.Logger.info(`WebSocket opened to ${this.config.url_feed}`);
             this.timeoutInit = 5000;
             this.broadcastStatus(true);
             (async () => {
@@ -123,7 +126,8 @@ class Explorer {
             logger_1.Logger.trace(`WebSocket onClose: ${code} ${reason}`);
         });
         this.webSocket.on('error', (error) => {
-            logger_1.Logger.trace(`WebSocket onError: ${error.toString()}`);
+            logger_1.Logger.warn('WebSocket error');
+            logger_1.Logger.trace(error.toString());
         });
     }
     broadcastBlock(block) {
@@ -143,8 +147,7 @@ class Explorer {
     broadcastStatus(status) {
         try {
             this.webSocketServer.clients.forEach((ws) => {
-                ws.readyState === ws_1.default.OPEN &&
-                    ws.send(JSON.stringify({ type: 'status', status: status }));
+                ws.readyState === ws_1.default.OPEN && ws.send(JSON.stringify({ type: 'status', status: status }));
             });
         }
         catch (error) {
@@ -212,9 +215,10 @@ class Explorer {
         });
     }
     processBlocks(arrayBlocks) {
-        return arrayBlocks.map((b) => {
+        return arrayBlocks
+            .map((b) => {
             this.height = b.height > this.height ? b.height : this.height;
-            let dnaCommands = new Map();
+            const dnaCommands = new Map();
             let lengthCommands = 0;
             Array.from(b.tx).forEach((tx) => {
                 [...tx.commands].forEach((c) => {
@@ -226,7 +230,7 @@ class Explorer {
             return {
                 height: b.height,
                 lengthTx: b.tx.length,
-                dnaCmds: [...dnaCommands].sort((a, b) => a[0] >= b[0] ? 1 : -1),
+                dnaCmds: [...dnaCommands].sort((a, b) => (a[0] >= b[0] ? 1 : -1)),
                 lengthCmds: lengthCommands,
                 weightTotal: JSON.stringify(b).length,
                 weightTx: JSON.stringify(b.tx).length,

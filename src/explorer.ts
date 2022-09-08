@@ -76,6 +76,7 @@ export class Explorer {
     this.httpServer = http.createServer(this.app);
     this.httpServer.on('listening', () => {
       Logger.info(`HttpServer listening on ${this.config.http_ip}:${this.config.http_port}`);
+      Logger.info(`WebSocketServer ready on ${this.config.http_ip}:${this.config.http_port}`);
     });
     this.httpServer.on('close', () => {
       Logger.info(`HttpServer closing on ${this.config.http_ip}:${this.config.http_port}`);
@@ -91,6 +92,10 @@ export class Explorer {
     });
     this.webSocketServer.on('close', () => {
       Logger.info('WebSocketServer closing');
+    });
+    this.webSocketServer.on('error', (error: Error) => {
+      Logger.warn('WebSocketServer error');
+      Logger.trace(error.toString());
     });
   }
 
@@ -134,6 +139,8 @@ export class Explorer {
     });
 
     this.webSocket.on('open', () => {
+      Logger.info(`WebSocket opened to ${this.config.url_feed}`);
+
       this.timeoutInit = 5000;
       // Backend status
       this.broadcastStatus(true);
@@ -169,6 +176,11 @@ export class Explorer {
       this.height = 0;
 
       Logger.trace(`WebSocket onClose: ${code} ${reason}`);
+    });
+
+    this.webSocket.on('error', (error: any) => {
+      Logger.warn('WebSocket error');
+      Logger.trace(error.toString());
     });
   }
 
