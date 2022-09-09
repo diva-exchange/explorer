@@ -21,10 +21,13 @@ Default: ws://localhost:17469
 
 ## Contributions
 Contributions are very welcome. This is the general workflow:
-1. Fork the project on https://github.com/diva-exchange/explorer/
+
+1. Fork from https://github.com/diva-exchange/explorer/
 2. Pull the forked project to your local developer environment
-3. Make your changes, commit and push them
-4. Create a new pull request
+3. Make your changes, test, commit and push them
+4. Create a new pull request on github.com
+
+It is strongly recommended to sign your commits: https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key 
 
 If you have questions, please just contact us (see below).
 
