@@ -38,21 +38,29 @@ _**Remark:**_ credentials (like username and password, ssh keys or tokens) are n
 * Docker: to create docker images, use `bin/create-docker-image.sh`.
 * Release packages: use `bin/release.sh` to tag the version and push it to the main branch. Additionally create images and packages and publish them to repositories. 
 
+## Donations
+
+Your donation goes entirely to the project. Your donation makes the development of DIVA.EXCHANGE faster. Thanks a lot.
+
+### XMR
+
+42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx
+
+![XMR](https://www.diva.exchange/wp-content/uploads/2020/06/diva-exchange-monero-qr-code-1.jpg)
+
+or via https://www.diva.exchange/en/join-in/
+
+### BTC
+
+3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs
+
+![BTC](https://www.diva.exchange/wp-content/uploads/2020/06/diva-exchange-bitcoin-qr-code-1.jpg)
+
 ## Contact the Developers
 
 On [DIVA.EXCHANGE](https://www.diva.exchange) you'll find various options to get in touch with the team.
 
 Talk to us via Telegram [https://t.me/diva_exchange_chat_de]() (English or German).
-
-## Donations
-
-Your donation goes entirely to the project. Your donation makes the development of DIVA.EXCHANGE faster.
-
-XMR: [42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx](monero:42QLvHvkc9bahHadQfEzuJJx4ZHnGhQzBXa8C9H3c472diEvVRzevwpN7VAUpCPePCiDhehH4BAWh8kYicoSxpusMmhfwgx)
-
-BTC: [3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs](bitcoin:3Ebuzhsbs6DrUQuwvMu722LhD8cNfhG1gs)
-
-Awesome, thank you!
 
 ## License
 
