@@ -7,7 +7,7 @@ each objBlock in blocks
             a= Number(objBlock.height)
         div(class='column block-dna is-4')
           each a in objBlock.dnaCmds
-            div(class='dna dna-' + a[0] style='width: ' + Math.round(a[1]*100/objBlock.lengthCmds) + '%')
+            div(class='dna dna-' + a[0] style='width: ' + (Math.round(a[1] * 1000 / objBlock.lengthCmds) / 10) + '%')
         div(class='column is-2')= objBlock.lengthTx
         div(class='column is-2')= objBlock.lengthCmds
         div(class='column is-2')= Math.floor(objBlock.weightTx * 100 / objBlock.weightTotal) + '%'
@@ -19,7 +19,7 @@ each objBlock in blocks
             each a in objBlock.dnaCmds
               div(class='column is-narrow py-0')
                 div(class='dna dna-' + a[0])
-                span(class='is-size-7')= a[0] + ': ' + Math.round(a[1]*100/objBlock.lengthCmds) + '%'
+                span(class='is-size-7')= a[0] + ': ' + (Math.round(a[1] * 1000 / objBlock.lengthCmds) / 10) + '%'
 
       div(id='bc' + Number(objBlock.height) class='columns is-mobile is-hidden')
         div(class='column is-full')
