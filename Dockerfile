@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Author/Maintainer: Konrad Bächler <konrad@diva.exchange>
+# Author/Maintainer: DIVA.EXCHANGE Association, https://diva.exchange
 #
 
-FROM node:14-slim AS build
+FROM node:16-slim AS build
 
-LABEL author="Konrad Baechler <konrad@diva.exchange>" \
-  maintainer="Konrad Baechler <konrad@diva.exchange>" \
+LABEL author="DIVA.EXCHANGE Association <contact@diva.exchange>" \
+  maintainer="DIVA.EXCHANGE Association <contact@diva.exchange>" \
   name="explorer" \
   description="Distributed digital value exchange upholding security, reliability and privacy" \
   url="https://diva.exchange"
