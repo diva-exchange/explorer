@@ -1,6 +1,6 @@
 {
   "name": "@diva.exchange/explorer",
-  "version": "3.4.0-0.34.1",
+  "version": "3.4.1-0.34.1",
   "description": "diva - Distributed value exchange upholding security, reliability and privacy",
   "keywords": [
     "blockchain",
@@ -21,8 +21,7 @@
     "build-css": "node-sass --omit-source-map-url --output-style compressed static/sass/explorer.scss static/css/explorer.min.css",
     "lint": "prettier -w \"**/*.ts\" && eslint --fix src/ --ext .ts && eslint --fix static/js/ui.js",
     "start-dev": "NODE_ENV=development ts-node --files src/main.ts | pino-pretty -t -i pid,hostname",
-    "test": "TS_NODE_PROJECT=./test/tsconfig.json NODE_ENV=test LOG_LEVEL=trace nyc mocha",
-    "postinstall": "ts-node --files src/version.ts"
+    "test": "TS_NODE_PROJECT=./test/tsconfig.json NODE_ENV=test LOG_LEVEL=trace nyc mocha"
   },
   "pkg": {
     "scripts": "dist/**/*.js",
@@ -50,15 +49,15 @@
     "@types/express": "^4.17.14",
     "@types/express-serve-static-core": "^4.17.31",
     "@types/http-errors": "^2.0.1",
-    "@types/node": "^18.11.9",
+    "@types/node": "^18.11.11",
     "@types/pug": "^2.0.6",
     "@types/ws": "^8.5.3",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
+    "@typescript-eslint/eslint-plugin": "^5.45.1",
+    "@typescript-eslint/parser": "^5.45.1",
     "bulma": "^0.9.4",
     "chai": "^4.3.7",
     "chai-http": "^4.3.0",
-    "eslint": "^8.27.0",
+    "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-security-node": "^1.1.1",
@@ -67,9 +66,9 @@
     "nyc": "^15.1.0",
     "pino-pretty": "^9.1.1",
     "pkg": "^5.8.0",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4",
+    "typescript": "^4.9.3",
     "umbrellajs": "^3.3.1"
   }
 }

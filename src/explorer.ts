@@ -93,6 +93,7 @@ export class Explorer {
     this.webSocketServer.on('close', () => {
       Logger.info('WebSocketServer closing');
     });
+    // eslint-disable-next-line security-node/detect-unhandled-event-errors
     this.webSocketServer.on('error', (error: Error) => {
       Logger.warn('WebSocketServer error');
       Logger.trace(error.toString());
@@ -178,6 +179,7 @@ export class Explorer {
       Logger.trace(`WebSocket onClose: ${code} ${reason}`);
     });
 
+    // eslint-disable-next-line security-node/detect-unhandled-event-errors
     this.webSocket.on('error', (error: any) => {
       Logger.warn('WebSocket error');
       Logger.trace(error.toString());
@@ -316,7 +318,7 @@ export class Explorer {
             return a.key > b.key ? 1 : -1;
           })
           .map((data: any) => {
-            let v = '';
+            let v: string;
             try {
               v = JSON.stringify(JSON.parse(data.value), null, ' ');
             } catch (error: any) {
@@ -393,9 +395,15 @@ export class Explorer {
   }
 
   private async putToApi(url: string, arrayCommand: Array<any>): Promise<any> {
+    //@FIXME the explorer will only work on a testnet
+    const tokenAPI: { header: string, token: string } =
+      await this.getFromApi(this.config.url_api + '/testnet/token');
+    const hdrs: { [key: string]: string } = {};
+    hdrs[tokenAPI.header] = tokenAPI.token;
     return new Promise((resolve, reject) => {
       get.concat(
         {
+          headers: hdrs,
           method: 'PUT',
           url: url,
           timeout: 1000,

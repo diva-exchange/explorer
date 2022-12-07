@@ -49,6 +49,7 @@ cp node_modules/umbrellajs/umbrella.min.js static/js/umbrella.min.js
 info "Transpiling TypeScript to JavaScript..."
 "${PROJECT_PATH}"/node_modules/.bin/tsc -p "${PROJECT_PATH}"/ --outDir "${PROJECT_PATH}"/dist
 rm -rf "${PROJECT_PATH}"/dist/version.js
+"${PROJECT_PATH}"/node_modules/.bin/ts-node --files "${PROJECT_PATH}"/src/version.ts
 
 if command_exists pkg; then
   info "Packaging ..."

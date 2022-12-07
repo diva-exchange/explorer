@@ -257,7 +257,7 @@ class Explorer {
                 return a.key > b.key ? 1 : -1;
             })
                 .map((data) => {
-                let v = '';
+                let v;
                 try {
                     v = JSON.stringify(JSON.parse(data.value), null, ' ');
                 }
@@ -328,8 +328,12 @@ class Explorer {
         });
     }
     async putToApi(url, arrayCommand) {
+        const tokenAPI = await this.getFromApi(this.config.url_api + '/testnet/token');
+        const hdrs = {};
+        hdrs[tokenAPI.header] = tokenAPI.token;
         return new Promise((resolve, reject) => {
             simple_get_1.default.concat({
+                headers: hdrs,
                 method: 'PUT',
                 url: url,
                 timeout: 1000,
